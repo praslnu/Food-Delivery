@@ -1,0 +1,15 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: ORDER-SERVICE
+  datasource:
+    url: jdbc:postgresql://localhost:5432/restaurant
+    username: baeldung
+    password: baeldung
+    driverClassName: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
