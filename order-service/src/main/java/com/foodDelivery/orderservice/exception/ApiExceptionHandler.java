@@ -1,10 +1,9 @@
-package com.foodDelivery.restaurantservice.exception;
+package com.foodDelivery.orderservice.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
 public class ApiExceptionHandler{
@@ -18,16 +17,18 @@ public class ApiExceptionHandler{
         return buildResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(CustException.class)
+    public ResponseEntity<ApiExceptionResponse> handleCustomException(CustException exception) {
+        return buildResponseEntity(exception.getMessage(), HttpStatus.valueOf(exception.getStatusCode()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiExceptionResponse> handleGenericException(Exception e) {
-        return buildResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        return buildResponseEntity(e.getMessage(), HttpStatus.CONFLICT);
     }
 
     private ResponseEntity<ApiExceptionResponse> buildResponseEntity(String message, HttpStatus status) {
-        ApiExceptionResponse apiExceptionResponse = new ApiExceptionResponse(
-                message,
-                status.value()
-        );
+        ApiExceptionResponse apiExceptionResponse = new ApiExceptionResponse(message, status.value());
         return new ResponseEntity<>(apiExceptionResponse, status);
     }
 }
