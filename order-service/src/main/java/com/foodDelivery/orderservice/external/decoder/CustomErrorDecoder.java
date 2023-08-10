@@ -10,7 +10,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import java.io.IOException;
 
 @Log4j2
-public class CustomErrorDecoder implements ErrorDecoder {
+public class CustomErrorDecoder implements ErrorDecoder{
     @Override
     public Exception decode(String s, Response response) {
         ObjectMapper objectMapper = new ObjectMapper();

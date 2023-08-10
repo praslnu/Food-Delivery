@@ -2,6 +2,7 @@ package com.foodDelivery.restaurantservice.controller;
 
 import com.foodDelivery.restaurantservice.dto.RestaurantDto;
 import com.foodDelivery.restaurantservice.entity.Restaurant;
+import com.foodDelivery.restaurantservice.response.RestaurantResponse;
 import com.foodDelivery.restaurantservice.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,9 +22,8 @@ public class RestaurantController{
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Restaurant> getRestaurantById(@PathVariable("id") long restaurantId) {
-        Restaurant restaurant
-                = restaurantService.getRestaurantById(restaurantId);
+    public ResponseEntity<RestaurantResponse> getRestaurantById(@PathVariable("id") long restaurantId) {
+        RestaurantResponse restaurant = restaurantService.getRestaurantById(restaurantId);
         return new ResponseEntity<>(restaurant, HttpStatus.OK);
     }
 }

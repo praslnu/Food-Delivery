@@ -1,5 +1,6 @@
-package com.foodDelivery.paymentservice.dto;
+package com.foodDelivery.orderservice.external.request;
 
+import com.foodDelivery.orderservice.dto.PaymentMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,9 +10,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PaymentDto{
+public class PaymentRequest{
     private long orderId;
-    private long amount;
+    private double amount;
     private String referenceNumber;
     private PaymentMode paymentMode;
 }

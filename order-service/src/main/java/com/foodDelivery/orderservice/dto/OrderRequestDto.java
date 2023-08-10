@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PaymentDto{
-    private long orderId;
-    private double amount;
-    private String referenceNumber;
+public class OrderRequestDto{
+    private long restaurantId;
+    private double totalAmount;
+    private long quantity;
     private PaymentMode paymentMode;
 }

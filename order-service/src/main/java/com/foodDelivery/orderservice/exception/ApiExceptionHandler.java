@@ -24,6 +24,7 @@ public class ApiExceptionHandler{
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiExceptionResponse> handleGenericException(Exception e) {
+        System.out.println(e);
         return buildResponseEntity(e.getMessage(), HttpStatus.CONFLICT);
     }
 

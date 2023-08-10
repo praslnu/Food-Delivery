@@ -4,6 +4,7 @@ import com.foodDelivery.restaurantservice.dto.RestaurantDto;
 import com.foodDelivery.restaurantservice.entity.Restaurant;
 import com.foodDelivery.restaurantservice.exception.NotFoundException;
 import com.foodDelivery.restaurantservice.repository.RestaurantRepo;
+import com.foodDelivery.restaurantservice.response.RestaurantResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,11 +25,15 @@ public class RestaurantService{
         return restaurant.getId();
     }
 
-    public Restaurant getRestaurantById(long restaurantId) {
+    public RestaurantResponse getRestaurantById(long restaurantId) {
         log.info("Get the Restaurant for id: {}", restaurantId);
         Restaurant restaurant
                 = restaurantRepo.findById(restaurantId)
                 .orElseThrow(() -> new NotFoundException(String.format("Restaurant with id:%s not found", restaurantId)));
-        return restaurant;
+
+        return RestaurantResponse.builder()
+                .restaurantId(restaurant.getId())
+                .name(restaurant.getName())
+                .build();
     }
 }
