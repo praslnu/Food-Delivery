@@ -1,8 +1,13 @@
 package com.foodDelivery.restaurantservice.service;
 
-import com.foodDelivery.restaurantservice.dto.RestaurantDto;
+import com.foodDelivery.restaurantservice.entity.Food;
+import com.foodDelivery.restaurantservice.external.client.UserClient;
+import com.foodDelivery.restaurantservice.external.request.CartDetailsRequest;
+import com.foodDelivery.restaurantservice.mapper.RestaurantMapper;
+import com.foodDelivery.restaurantservice.request.RestaurantRequest;
 import com.foodDelivery.restaurantservice.entity.Restaurant;
 import com.foodDelivery.restaurantservice.exception.NotFoundException;
+import com.foodDelivery.restaurantservice.repository.FoodRepository;
 import com.foodDelivery.restaurantservice.repository.RestaurantRepo;
 import com.foodDelivery.restaurantservice.response.RestaurantResponse;
 import lombok.extern.log4j.Log4j2;
@@ -14,13 +19,16 @@ import org.springframework.stereotype.Service;
 public class RestaurantService{
     @Autowired
     private RestaurantRepo restaurantRepo;
-    public Long addRestaurant(RestaurantDto restaurantDto) {
+    @Autowired
+    private FoodRepository foodRepository;
+    @Autowired
+    private RestaurantMapper restaurantMapper;
+    @Autowired
+    private UserClient userClient;
+
+    public Long addRestaurant(RestaurantRequest restaurantRequest) {
         log.info("Adding Restaurant..");
-        Restaurant restaurant
-                = Restaurant.builder()
-                .name(restaurantDto.getName())
-                .build();
-        restaurantRepo.save(restaurant);
+        Restaurant restaurant = restaurantRepo.save(restaurantMapper.getRestaurant(restaurantRequest));
         log.info("Restaurant Created");
         return restaurant.getId();
     }
@@ -31,9 +39,23 @@ public class RestaurantService{
                 = restaurantRepo.findById(restaurantId)
                 .orElseThrow(() -> new NotFoundException(String.format("Restaurant with id:%s not found", restaurantId)));
 
-        return RestaurantResponse.builder()
-                .restaurantId(restaurant.getId())
-                .name(restaurant.getName())
-                .build();
+        return restaurantMapper.getRestaurant(restaurant);
+    }
+
+    public RestaurantResponse addFoodToRestaurant(long foodId, long restaurantId){
+        Restaurant restaurant
+                = restaurantRepo.findById(restaurantId)
+                .orElseThrow(() -> new NotFoundException(String.format("Restaurant with id:%s not found", restaurantId)));
+
+        Food food
+                = foodRepository.findById(foodId)
+                .orElseThrow(() -> new NotFoundException(String.format("Food with id:%s not found", foodId)));
+
+        restaurant.getMenu().add(food);
+        return restaurantMapper.getRestaurant(restaurantRepo.save(restaurant));
+    }
+
+    public String addFoodToCart(CartDetailsRequest cartDetailsRequest){
+        return userClient.addFoodToCart(cartDetailsRequest);
     }
 }

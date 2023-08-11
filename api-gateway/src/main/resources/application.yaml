@@ -21,7 +21,7 @@ spring:
         - id: RESTAURANT-SERVICE
           uri: lb://RESTAURANT-SERVICE
           predicates:
-            - Path=/restaurant/**
+            - Path=/restaurant/**, /food/**
           filters:
             - name: CircuitBreaker
               args:
@@ -36,3 +36,12 @@ spring:
               args:
                 name: PAYMENT-SERVICE
                 fallbackuri: forward:/paymentServiceFallBack
+        - id: USER-SERVICE
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/user/**, /role/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: USER-SERVICE
+                fallbackuri: forward:/userServiceFallBack

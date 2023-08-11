@@ -1,18 +1,17 @@
-package com.foodDelivery.restaurantservice.response;
+package com.foodDelivery.restaurantservice.request;
 
+import com.foodDelivery.restaurantservice.model.FoodType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RestaurantResponse{
-    private long restaurantId;
+public class FoodRequest{
     private String name;
-    private List<FoodResponse> menu;
+    private FoodType foodType;
+    private double price;
 }

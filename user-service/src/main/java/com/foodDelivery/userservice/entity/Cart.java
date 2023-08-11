@@ -1,6 +1,5 @@
 package com.foodDelivery.userservice.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,13 +13,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Role{
+public class Cart{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    private String role;
+    private long id;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Users> users;
+    @OneToOne(mappedBy = "cart")
+    private Users user;
+
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<CartItems> cartItems;
 }

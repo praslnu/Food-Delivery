@@ -24,4 +24,8 @@ public class Users{
     private String lastName;
     private String email;
     private long phoneNumber;
+
+    @OneToOne(cascade = CascadeType.ALL, optional = false)
+    @JoinColumn(name = "cart_id")
+    private Cart cart = new Cart();
 }

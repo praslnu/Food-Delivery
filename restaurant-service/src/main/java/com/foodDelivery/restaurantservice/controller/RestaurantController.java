@@ -1,7 +1,7 @@
 package com.foodDelivery.restaurantservice.controller;
 
-import com.foodDelivery.restaurantservice.dto.RestaurantDto;
-import com.foodDelivery.restaurantservice.entity.Restaurant;
+import com.foodDelivery.restaurantservice.external.request.CartDetailsRequest;
+import com.foodDelivery.restaurantservice.request.RestaurantRequest;
 import com.foodDelivery.restaurantservice.response.RestaurantResponse;
 import com.foodDelivery.restaurantservice.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ public class RestaurantController{
     private RestaurantService restaurantService;
 
     @PostMapping
-    public ResponseEntity<Long> addProduct(@RequestBody RestaurantDto productRequest) {
+    public ResponseEntity<Long> addRestaurant(@RequestBody RestaurantRequest productRequest) {
         long restaurantId = restaurantService.addRestaurant(productRequest);
         return new ResponseEntity<>(restaurantId, HttpStatus.CREATED);
     }
@@ -25,5 +25,16 @@ public class RestaurantController{
     public ResponseEntity<RestaurantResponse> getRestaurantById(@PathVariable("id") long restaurantId) {
         RestaurantResponse restaurant = restaurantService.getRestaurantById(restaurantId);
         return new ResponseEntity<>(restaurant, HttpStatus.OK);
+    }
+
+    @PutMapping("/{restaurantId}/food/{foodId}")
+    public ResponseEntity<RestaurantResponse> addFoodToRestaurant(@PathVariable long restaurantId, @PathVariable long foodId){
+        return new ResponseEntity<>(restaurantService.addFoodToRestaurant(foodId, restaurantId), HttpStatus.OK);
+    }
+
+    // add food to cart
+    @PutMapping("/cart")
+    public ResponseEntity<String> addFoodToRestaurant(@RequestBody CartDetailsRequest cartDetailsRequest){
+        return new ResponseEntity<>(restaurantService.addFoodToCart(cartDetailsRequest), HttpStatus.OK);
     }
 }
