@@ -13,6 +13,8 @@ import com.foodDelivery.restaurantservice.response.RestaurantResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -25,6 +27,10 @@ public class RestaurantService{
     private RestaurantMapper restaurantMapper;
     @Autowired
     private UserClient userClient;
+
+    public List<RestaurantResponse> getRestaurants(){
+        return restaurantRepo.findAll().stream().map(restaurant -> restaurantMapper.getRestaurant(restaurant)).collect(Collectors.toList());
+    }
 
     public Long addRestaurant(RestaurantRequest restaurantRequest) {
         log.info("Adding Restaurant..");
@@ -56,6 +62,14 @@ public class RestaurantService{
     }
 
     public String addFoodToCart(CartDetailsRequest cartDetailsRequest){
+        Restaurant restaurant = restaurantRepo.findById(cartDetailsRequest.getRestaurantId())
+                .orElseThrow(() -> new NotFoundException(String.format("Restaurant with id:%s not found", cartDetailsRequest.getRestaurantId())));
+        foodRepository.findById(cartDetailsRequest.getFoodId())
+                .orElseThrow(() -> new NotFoundException(String.format("Food with id:%s not found", cartDetailsRequest.getFoodId())));
+        restaurant.getMenu().stream().filter(menu -> cartDetailsRequest.getFoodId() == menu.getId()).findAny().orElseThrow(() -> new NotFoundException(String.format("Food with id:%s is not available in the restaurant", cartDetailsRequest.getFoodId())));
+        if (restaurant == null){
+            throw new NotFoundException(String.format("Food with id:%s Not available in the restaurant", cartDetailsRequest.getFoodId()));
+        }
         return userClient.addFoodToCart(cartDetailsRequest);
     }
 }

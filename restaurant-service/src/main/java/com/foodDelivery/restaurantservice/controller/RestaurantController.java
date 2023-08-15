@@ -9,11 +9,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/restaurant")
 public class RestaurantController{
     @Autowired
     private RestaurantService restaurantService;
+
+    @GetMapping
+    public ResponseEntity<List<RestaurantResponse>> getRestaurants() {
+        List<RestaurantResponse> restaurants = restaurantService.getRestaurants();
+        return new ResponseEntity<>(restaurants, HttpStatus.OK);
+    }
 
     @PostMapping
     public ResponseEntity<Long> addRestaurant(@RequestBody RestaurantRequest productRequest) {

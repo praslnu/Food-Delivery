@@ -83,15 +83,41 @@ public class UserService{
         return cartItemsRepository.save(cartItems);
     }
 
-    public void incrementFoodQuantityInCart(){
-
+    public CartItems adjustFoodQuantityInCart(long userId, long cartItemId, String type){
+        Cart cart = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(String.format("User with id:%s not found", userId))).getCart();
+        if (cart == null) {
+            throw new NotFoundException(String.format("Cart not found for user id: %s", userId));
+        }
+        CartItems cartItem = cartItemsRepository.findById(cartItemId)
+                .orElseThrow(() -> new NotFoundException(String.format("Cart item with id:%s not found", cartItemId)));
+        if (type.equalsIgnoreCase("increment")){
+            cartItem.setQuantity(cartItem.getQuantity() + 1);
+            cartItemsRepository.save(cartItem);
+        }
+        else {
+            if (cartItem.getQuantity() == 1){
+                removeFromCart(userId, cartItemId);
+            }
+            else{
+                cartItem.setQuantity(cartItem.getQuantity() - 1);
+                cartItemsRepository.save(cartItem);
+            }
+        }
+        return cartItem;
     }
 
-    public void decrementFoodQuantityInCart(){
-
+    public String removeFromCart(long userId, long cartItemId){
+        cartItemsRepository.findById(cartItemId)
+                .orElseThrow(() -> new NotFoundException(String.format("Cart item with id:%s not found", cartItemId)));
+        cartItemsRepository.deleteById(cartItemId);
+        return "Successfully removed item from the cart";
     }
 
-    public void checkOutCart(){
-
+    public List<CartItems> getCartItems(long userId){
+        Cart cart = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(String.format("User with id:%s not found", userId))).getCart();
+        if (cart == null) {
+            throw new NotFoundException(String.format("Cart not found for user id: %s", userId));
+        }
+        return cartItemsRepository.findAllByCart(cart);
     }
 }

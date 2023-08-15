@@ -9,9 +9,9 @@ import com.foodDelivery.userservice.response.UserResponse;
 import com.foodDelivery.userservice.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -68,5 +68,21 @@ public class UserController{
             throw new Exception("add items to cart failed");
         }
         return "Items added to the cart successfully";
+    }
+
+    @PutMapping("/cart/{cartItemId}")
+    public ResponseEntity<CartItems> adjustFoodInCart(@PathVariable long cartItemId, @RequestParam String type)
+    {
+        return new ResponseEntity<>(userService.adjustFoodQuantityInCart(1, cartItemId, type), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/cart/{cartItemId}")
+    public ResponseEntity<String> removeCartItem(@PathVariable long cartItemId){
+        return new ResponseEntity<>(userService.removeFromCart(1, cartItemId), HttpStatus.OK);
+    }
+
+    @GetMapping("/cart")
+    public ResponseEntity<List<CartItems>> getCartItems(){
+        return new ResponseEntity<>(userService.getCartItems(1), HttpStatus.ACCEPTED);
     }
 }
