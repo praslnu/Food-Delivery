@@ -5,6 +5,7 @@ import com.foodDelivery.userservice.exception.BadRequestException;
 import com.foodDelivery.userservice.model.CartDetails;
 import com.foodDelivery.userservice.request.UserLoginRequest;
 import com.foodDelivery.userservice.request.UserRequest;
+import com.foodDelivery.userservice.response.UserCredentials;
 import com.foodDelivery.userservice.response.UserResponse;
 import com.foodDelivery.userservice.service.UserService;
 import lombok.extern.log4j.Log4j2;
@@ -53,6 +54,11 @@ public class UserController{
         return userService.getUser(id);
     }
 
+    @GetMapping("/username/{username}")
+    public UserCredentials getUserDetails(@RequestParam String username){
+        return userService.getUser(username);
+    }
+
     @PostMapping("/login")
     public void authenticateAndGetToken(@RequestBody UserLoginRequest userLoginRequest)
     {
@@ -84,5 +90,10 @@ public class UserController{
     @GetMapping("/cart")
     public ResponseEntity<List<CartItems>> getCartItems(){
         return new ResponseEntity<>(userService.getCartItems(1), HttpStatus.ACCEPTED);
+    }
+
+    @PostMapping("/cart/checkout")
+    public void checkout(){
+
     }
 }

@@ -7,6 +7,7 @@ import com.foodDelivery.orderservice.external.client.PaymentClient;
 import com.foodDelivery.orderservice.external.client.RestaurantClient;
 import com.foodDelivery.orderservice.external.request.PaymentRequest;
 import com.foodDelivery.orderservice.repository.OrderRepo;
+import com.foodDelivery.orderservice.request.OrderRequest;
 import com.foodDelivery.orderservice.response.PaymentResponse;
 import com.foodDelivery.orderservice.response.RestaurantResponse;
 import lombok.extern.log4j.Log4j2;
@@ -23,15 +24,12 @@ public class OrderService{
     private PaymentClient paymentClient;
     @Autowired
     private RestaurantClient restaurantClient;
-    @Autowired
-    private RestTemplate restTemplate;
 
-    public Order placeOrder(OrderRequestDto OrderDto) {
+    public Order placeOrder(OrderRequest OrderDto) {
         log.info("Creating an Order");
         Order order = Order.builder()
                 .amount(OrderDto.getTotalAmount())
                 .orderStatus("CREATED")
-                .restaurantId(OrderDto.getRestaurantId())
                 .build();
         order = orderRepo.save(order);
 
@@ -65,11 +63,11 @@ public class OrderService{
                 .orElseThrow(() -> new NotFoundException("Order not found for the order Id:" + orderId));
 
         log.info("Invoking Product service to fetch the product for id: {}", order.getId());
-        RestaurantResponse restaurantResponse = restaurantClient.getRestaurantById(order.getRestaurantId());
+//        RestaurantResponse restaurantResponse = restaurantClient.getRestaurantById(order.getRestaurantId());
         log.info("Getting payment information form the payment Service");
         PaymentResponse paymentResponse = paymentClient.getPaymentDetailsByOrderId(order.getId());
         OrderResponseDto orderResponseDto = OrderResponseDto.builder()
-                .restaurantResponse(restaurantResponse)
+//                .restaurantResponse(restaurantResponse)
                 .paymentResponse(paymentResponse)
                 .orderId(order.getId())
                 .orderStatus(order.getOrderStatus())

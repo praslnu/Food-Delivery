@@ -11,6 +11,7 @@ import com.foodDelivery.userservice.repository.RoleRepository;
 import com.foodDelivery.userservice.repository.UserRepository;
 import com.foodDelivery.userservice.request.UserLoginRequest;
 import com.foodDelivery.userservice.request.UserRequest;
+import com.foodDelivery.userservice.response.UserCredentials;
 import com.foodDelivery.userservice.response.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -69,18 +70,33 @@ public class UserService{
         return userMapper.getUserResponse(user);
     }
 
+    public UserCredentials getUser(String username){
+        Users user = userRepository.findByUserName(username);
+        return userMapper.getUserCredentials(user);
+    }
+
     public CartItems addFoodToCart(long userId, long foodId, long restaurantId, int quantity){
         Cart cart = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(String.format("User with id:%s not found", userId))).getCart();
         if (cart == null) {
             throw new NotFoundException(String.format("Cart not found for user id: %s", userId));
         }
-        CartItems cartItems = CartItems.builder()
-                .cart(cart)
-                .foodId(foodId)
-                .restaurantId(restaurantId)
-                .quantity(quantity)
-                .build();
-        return cartItemsRepository.save(cartItems);
+        Long existingFoodItem = cartItemsRepository.findCartItemsByFoodIdAndRestaurantIdAndCartId(cart.getId(), restaurantId, foodId);
+        CartItems cartItem;
+        if (existingFoodItem != null){
+            cartItem = cartItemsRepository.findById(existingFoodItem)
+                    .orElseThrow(() -> new NotFoundException(String.format("Cart item with id:%s not found", existingFoodItem)));
+            cartItem.setQuantity(cartItem.getQuantity() + quantity);
+        }
+        else
+        {
+            cartItem = CartItems.builder()
+                    .cart(cart)
+                    .foodId(foodId)
+                    .restaurantId(restaurantId)
+                    .quantity(quantity)
+                    .build();
+        }
+        return cartItemsRepository.save(cartItem);
     }
 
     public CartItems adjustFoodQuantityInCart(long userId, long cartItemId, String type){

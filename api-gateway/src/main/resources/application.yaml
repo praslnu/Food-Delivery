@@ -45,3 +45,7 @@ spring:
               args:
                 name: USER-SERVICE
                 fallbackuri: forward:/userServiceFallBack
+        - id: AUTH-SERVICE
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth/**
