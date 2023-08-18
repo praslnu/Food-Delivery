@@ -59,12 +59,6 @@ public class UserController{
         return userService.getUser(username);
     }
 
-    @PostMapping("/login")
-    public void authenticateAndGetToken(@RequestBody UserLoginRequest userLoginRequest)
-    {
-        // to verify user credentials and generate token
-    }
-
     @PostMapping("/cart")
     public String addFoodToCart(@RequestBody CartDetails cartDetails) throws Exception
     {

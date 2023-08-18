@@ -41,6 +41,7 @@ spring:
           predicates:
             - Path=/user/**, /role/**
           filters:
+            - AuthenticationFilter
             - name: CircuitBreaker
               args:
                 name: USER-SERVICE

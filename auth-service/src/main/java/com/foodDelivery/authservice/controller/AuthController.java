@@ -4,6 +4,7 @@ import com.foodDelivery.authservice.exception.NotFoundException;
 import com.foodDelivery.authservice.external.client.UserClient;
 import com.foodDelivery.authservice.request.UserRequest;
 import com.foodDelivery.authservice.request.LoginRequest;
+import com.foodDelivery.authservice.response.TokenResponse;
 import com.foodDelivery.authservice.response.UserResponse;
 import com.foodDelivery.authservice.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,15 +38,12 @@ public class AuthController{
     }
 
     @PostMapping("/login")
-    public String getToken(@RequestBody LoginRequest loginRequest) throws Exception {
-        System.out.println("entered method here");
+    public ResponseEntity<TokenResponse> getToken(@RequestBody LoginRequest loginRequest) throws Exception {
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-        System.out.println("authenticated");
         if (authenticate.isAuthenticated()) {
-            System.out.println("coming here");
-            return authService.generateToken(loginRequest.getUsername());
-        } else {
-            System.out.println("invlalid");
+            return new ResponseEntity<>(TokenResponse.builder().token(authService.generateToken(loginRequest.getUsername())).build(), HttpStatus.OK);
+        }
+        else {
             throw new Exception("invalid access");
         }
     }

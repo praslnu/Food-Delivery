@@ -72,6 +72,7 @@ public class UserService{
 
     public UserCredentials getUser(String username){
         Users user = userRepository.findByUserName(username);
+        System.out.println(user.getUserName() + " " + user.getPassword() +  " " + user.getRole().getRole());
         return userMapper.getUserCredentials(user);
     }
 
