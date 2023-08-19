@@ -15,7 +15,6 @@ import reactor.core.publisher.Mono;
 @Component
 @Order(-2)
 public class GlobalExceptionHandler implements WebExceptionHandler{
-
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -27,10 +26,12 @@ public class GlobalExceptionHandler implements WebExceptionHandler{
         if (ex instanceof AccessDeniedException) {
             httpStatus = HttpStatus.UNAUTHORIZED;
             errorMessage = ex.getMessage();
-        } else if (ex instanceof BadRequestException) {
+        }
+        else if (ex instanceof BadRequestException) {
             httpStatus = HttpStatus.BAD_REQUEST;
             errorMessage = ex.getMessage();
-        } else {
+        }
+        else {
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
             errorMessage = ex.getMessage();
         }

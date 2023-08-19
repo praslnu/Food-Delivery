@@ -22,6 +22,8 @@ public class UserController{
     @Autowired
     private UserService userService;
 
+
+
     @PostMapping("/admin/register")
     public ResponseEntity<UserResponse> registerAdmin(@RequestBody UserLoginRequest userLoginRequest, @RequestParam Boolean isAdmin)
     {
@@ -34,8 +36,8 @@ public class UserController{
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers(){
-        return ResponseEntity.ok(userService.getUsers());
+    public ResponseEntity<List<UserResponse>> getAllUsers(@RequestHeader("Authorization") String authorizationHeader){
+        return ResponseEntity.ok(userService.getUsers(authorizationHeader));
     }
 
     @PostMapping("/register")

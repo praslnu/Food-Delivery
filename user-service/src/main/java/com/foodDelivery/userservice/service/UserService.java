@@ -13,6 +13,7 @@ import com.foodDelivery.userservice.request.UserLoginRequest;
 import com.foodDelivery.userservice.request.UserRequest;
 import com.foodDelivery.userservice.response.UserCredentials;
 import com.foodDelivery.userservice.response.UserResponse;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,8 @@ public class UserService{
     private CartItemsRepository cartItemsRepository;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     public UserResponse registerAdmins(UserLoginRequest userLoginRequest, Boolean isAdmin)
     {
@@ -58,8 +61,11 @@ public class UserService{
         return userMapper.getUserResponse(userRepository.save(user));
     }
 
-    public List<UserResponse> getUsers(){
+    public List<UserResponse> getUsers(String authorizationHeader){
         Role role = roleRepository.getByRole("user");
+        String token = authorizationHeader.replace("Bearer ", "");
+        Claims claims = jwtUtil.extractAllClaims(token);
+        System.out.println(claims);
         return userRepository.findAllByRole(role).stream()
                 .map(user -> userMapper.getUserResponse(user))
                 .toList();

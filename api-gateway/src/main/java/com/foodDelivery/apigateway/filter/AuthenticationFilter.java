@@ -28,17 +28,19 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     public GatewayFilter apply(Config config) {
         return ((exchange, chain) -> {
             if (validator.isSecured.test(exchange.getRequest())) {
-                //header contains token or not
                 if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                     throw new AccessDeniedException("missing authorization header");
                 }
-                String authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
-                if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                    authHeader = authHeader.substring(7);
+                String token = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
+                if (token != null && token.startsWith("Bearer ")) {
+                    token = token.substring(7);
                 }
                 try {
-                    jwtUtil.validateToken(authHeader);
-
+                    if (!jwtUtil.isTokenValid(token)){
+                        throw new AccessDeniedException("Invalid Token");
+                    }
+                    System.out.println("Here is the username -> " + jwtUtil.extractUsername(token));
+                    System.out.println(jwtUtil.extractAllClaims(token));
                 } catch (Exception e) {
                     throw new AccessDeniedException("Access Denied!");
                 }

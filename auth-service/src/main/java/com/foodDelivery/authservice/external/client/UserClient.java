@@ -4,10 +4,8 @@ import com.foodDelivery.authservice.request.UserRequest;
 import com.foodDelivery.authservice.response.UserCredentials;
 import com.foodDelivery.authservice.response.UserResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @FeignClient(name = "USER-SERVICE/user")
 public interface UserClient{
@@ -16,4 +14,7 @@ public interface UserClient{
 
     @GetMapping("/username/{username}")
     public UserCredentials getUserDetails(@RequestParam String username);
+
+    @GetMapping
+    public List<UserResponse> getAllUsers(@RequestHeader("Authorization") String authorizationHeader);
 }

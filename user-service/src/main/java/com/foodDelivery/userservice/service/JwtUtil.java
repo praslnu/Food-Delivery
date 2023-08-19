@@ -1,10 +1,11 @@
-package com.foodDelivery.apigateway.util;
+package com.foodDelivery.userservice.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
@@ -27,6 +28,11 @@ public class JwtUtil{
     {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
+    }
+
+    public Claims getClaims(String token)
+    {
+        return extractAllClaims(token);
     }
 
     public String extractUsername(String token)
