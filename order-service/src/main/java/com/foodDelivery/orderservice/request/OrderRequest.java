@@ -6,13 +6,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class OrderRequest{
-    private long cartId;
-    private double totalAmount;
-    private long quantity;
+    private long restaurantId;
+    private List<Long> foods;
+    private double totalPrice;
     private PaymentMode paymentMode;
 }

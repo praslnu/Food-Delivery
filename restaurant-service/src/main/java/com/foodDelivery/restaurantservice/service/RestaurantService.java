@@ -64,12 +64,13 @@ public class RestaurantService{
     public String addFoodToCart(CartDetailsRequest cartDetailsRequest){
         Restaurant restaurant = restaurantRepo.findById(cartDetailsRequest.getRestaurantId())
                 .orElseThrow(() -> new NotFoundException(String.format("Restaurant with id:%s not found", cartDetailsRequest.getRestaurantId())));
-        foodRepository.findById(cartDetailsRequest.getFoodId())
+        Food food = foodRepository.findById(cartDetailsRequest.getFoodId())
                 .orElseThrow(() -> new NotFoundException(String.format("Food with id:%s not found", cartDetailsRequest.getFoodId())));
         restaurant.getMenu().stream().filter(menu -> cartDetailsRequest.getFoodId() == menu.getId()).findAny().orElseThrow(() -> new NotFoundException(String.format("Food with id:%s is not available in the restaurant", cartDetailsRequest.getFoodId())));
         if (restaurant == null){
             throw new NotFoundException(String.format("Food with id:%s Not available in the restaurant", cartDetailsRequest.getFoodId()));
         }
+        cartDetailsRequest.setPrice(food.getPrice());
         return userClient.addFoodToCart(cartDetailsRequest);
     }
 }

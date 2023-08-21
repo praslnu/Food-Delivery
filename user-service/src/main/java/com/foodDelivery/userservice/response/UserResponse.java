@@ -1,6 +1,5 @@
 package com.foodDelivery.userservice.response;
 
-import com.foodDelivery.userservice.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

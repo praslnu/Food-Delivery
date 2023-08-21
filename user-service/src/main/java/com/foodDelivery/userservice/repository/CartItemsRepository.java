@@ -12,6 +12,11 @@ import java.util.List;
 public interface CartItemsRepository extends JpaRepository<CartItems, Long>{
     List<CartItems> findAllByCart(Cart cart);
 
+    @Query("select distinct ci.restaurantId from CartItems ci where ci.cart.id = :cartId")
+    List<Long> findAllRestaurantsOfUser(@Param("cartId") long cartId);
+
+    List<CartItems> findAllByRestaurantId(long restaurantId);
+
     @Query("select ci.id from CartItems ci join Cart c on c.id = ci.cart.id where c.id = :cartId and ci.restaurantId = :restaurantId and ci.foodId = :foodId")
     Long findCartItemsByFoodIdAndRestaurantIdAndCartId(@Param("cartId") long cartId, @Param("restaurantId") long restaurantId, @Param("foodId") long foodId);
 }

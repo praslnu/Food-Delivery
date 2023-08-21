@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CartDetailsRequest{
-    private long userId;
     private long foodId;
     private long restaurantId;
     private int quantity;
+    private double price;
 }

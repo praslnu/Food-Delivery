@@ -7,8 +7,9 @@ import com.foodDelivery.restaurantservice.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -17,6 +18,7 @@ public class RestaurantController{
     @Autowired
     private RestaurantService restaurantService;
 
+    @PreAuthorize("hasAuthority('staff')")
     @GetMapping
     public ResponseEntity<List<RestaurantResponse>> getRestaurants() {
         List<RestaurantResponse> restaurants = restaurantService.getRestaurants();
@@ -29,6 +31,7 @@ public class RestaurantController{
         return new ResponseEntity<>(restaurantId, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAuthority('staff')")
     @GetMapping("/{id}")
     public ResponseEntity<RestaurantResponse> getRestaurantById(@PathVariable("id") long restaurantId) {
         RestaurantResponse restaurant = restaurantService.getRestaurantById(restaurantId);
@@ -40,9 +43,8 @@ public class RestaurantController{
         return new ResponseEntity<>(restaurantService.addFoodToRestaurant(foodId, restaurantId), HttpStatus.OK);
     }
 
-    // add food to cart
     @PutMapping("/cart")
-    public ResponseEntity<String> addFoodToRestaurant(@RequestBody CartDetailsRequest cartDetailsRequest){
+    public ResponseEntity<String> addFoodToCart(Authentication authentication, @RequestBody CartDetailsRequest cartDetailsRequest){
         return new ResponseEntity<>(restaurantService.addFoodToCart(cartDetailsRequest), HttpStatus.OK);
     }
 }

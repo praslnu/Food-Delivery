@@ -25,34 +25,35 @@ public class OrderService{
     @Autowired
     private RestaurantClient restaurantClient;
 
-    public Order placeOrder(OrderRequest OrderDto) {
+    public Order placeOrder(OrderRequest orderRequest) {
         log.info("Creating an Order");
         Order order = Order.builder()
-                .amount(OrderDto.getTotalAmount())
+                .amount(orderRequest.getTotalPrice())
                 .orderStatus("CREATED")
+                .restaurant(orderRequest.getRestaurantId())
                 .build();
         order = orderRepo.save(order);
 
-        log.info("Calling Payment Service to complete the payment");
-        PaymentRequest paymentDto
-                = PaymentRequest.builder()
-                .orderId(order.getId())
-                .paymentMode(OrderDto.getPaymentMode())
-                .amount(OrderDto.getTotalAmount())
-                .build();
-
-        String orderStatus = null;
-        try {
-            paymentClient.doPayment(paymentDto);
-            log.info("Payment done Successfully. Changing the Oder status to PLACED");
-            orderStatus = "PLACED";
-        } catch (Exception e) {
-            log.error("Error occurred in payment. Changing order status to PAYMENT_FAILED");
-            orderStatus = "PAYMENT_FAILED";
-        }
-        order.setOrderStatus(orderStatus);
-        orderRepo.save(order);
-        log.info("Order Placed successfully with Order Id: {}", order.getId());
+//        log.info("Calling Payment Service to complete the payment");
+//        PaymentRequest paymentDto
+//                = PaymentRequest.builder()
+//                .orderId(order.getId())
+//                .paymentMode(orderRequest.getPaymentMode())
+//                .amount(orderRequest.getTotalAmount())
+//                .build();
+//
+//        String orderStatus = null;
+//        try {
+//            paymentClient.doPayment(paymentDto);
+//            log.info("Payment done Successfully. Changing the Oder status to PLACED");
+//            orderStatus = "PLACED";
+//        } catch (Exception e) {
+//            log.error("Error occurred in payment. Changing order status to PAYMENT_FAILED");
+//            orderStatus = "PAYMENT_FAILED";
+//        }
+//        order.setOrderStatus(orderStatus);
+//        orderRepo.save(order);
+//        log.info("Order Placed successfully with Order Id: {}", order.getId());
         return order;
     }
 

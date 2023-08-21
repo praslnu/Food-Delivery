@@ -18,8 +18,7 @@ public class Cart{
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @OneToOne(mappedBy = "cart")
-    private Users user;
+    private String email;
 
     @OneToMany(mappedBy = "cart", fetch = FetchType.EAGER)
     private List<CartItems> cartItems;

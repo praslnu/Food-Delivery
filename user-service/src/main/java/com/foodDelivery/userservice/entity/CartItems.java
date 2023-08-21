@@ -22,9 +22,11 @@ public class CartItems{
     private long restaurantId;
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.ALL)
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
     private int quantity;
+
+    private double price;
 }

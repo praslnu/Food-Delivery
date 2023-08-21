@@ -16,7 +16,7 @@ public class Order{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Long cartId;
+    private Long restaurant;
     private String orderStatus;
     private Double amount;
 }

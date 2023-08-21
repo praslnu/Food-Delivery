@@ -41,12 +41,15 @@ spring:
           predicates:
             - Path=/user/**, /role/**
           filters:
-            - AuthenticationFilter
             - name: CircuitBreaker
               args:
                 name: USER-SERVICE
                 fallbackuri: forward:/userServiceFallBack
-        - id: AUTH-SERVICE
-          uri: lb://AUTH-SERVICE
-          predicates:
-            - Path=/auth/**
+
+okta:
+  oauth2:
+    issuer: https://dev-3395095.okta.com/oauth2/default
+    audience: api://default
+    client-id: 0oaavzo2y4J53AKFc5d7
+    client-secret: PCKw5-8KRk-rvmgavHt6XXK7jMzyVElhoxMFTMIKk0sL-pXu0pvhQoiZDIUKsUlD
+    scopes: openid, email, profile, offline_access

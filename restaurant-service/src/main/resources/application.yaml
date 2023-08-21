@@ -6,3 +6,19 @@ spring:
     name: RESTAURANT-SERVICE
   config:
     import: configserver:http://localhost:9296
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-3395095.okta.com/oauth2/default
+      client:
+        registration:
+          internal-client:
+            provider: okta
+            authorization-grant-type: authorization_code
+            scope: internal
+            client-id: 0oaavzo2y4J53AKFc5d7
+            client-secret: PCKw5-8KRk-rvmgavHt6XXK7jMzyVElhoxMFTMIKk0sL-pXu0pvhQoiZDIUKsUlD
+        provider:
+          okta:
+            issuer-uri: https://dev-3395095.okta.com/oauth2/default
