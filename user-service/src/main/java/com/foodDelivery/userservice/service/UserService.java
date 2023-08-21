@@ -5,6 +5,7 @@ import com.foodDelivery.userservice.entity.CartItems;
 import com.foodDelivery.userservice.exception.NotFoundException;
 import com.foodDelivery.userservice.external.client.OrderClient;
 import com.foodDelivery.userservice.external.request.OrderRequest;
+import com.foodDelivery.userservice.external.response.OrderResponse;
 import com.foodDelivery.userservice.repository.CartItemsRepository;
 import com.foodDelivery.userservice.repository.CartRepository;
 import com.foodDelivery.userservice.request.PaymentDetailsRequest;
@@ -131,6 +132,9 @@ public class UserService{
             log.info("Placing the order now");
             orderClient.placeOrder(orderRequest);
         });
+    }
 
+    public List<OrderResponse> getPastOrdered(){
+        return orderClient.getPastOrders();
     }
 }

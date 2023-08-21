@@ -12,10 +12,8 @@ import com.foodDelivery.orderservice.external.request.PaymentRequest;
 import com.foodDelivery.orderservice.repository.OrderInfoRepo;
 import com.foodDelivery.orderservice.repository.OrderRepo;
 import com.foodDelivery.orderservice.request.OrderRequest;
-import com.foodDelivery.orderservice.response.FoodResponse;
-import com.foodDelivery.orderservice.response.OrderResponse;
-import com.foodDelivery.orderservice.response.PaymentResponse;
-import com.foodDelivery.orderservice.response.RestaurantResponse;
+import com.foodDelivery.orderservice.request.ReviewRequest;
+import com.foodDelivery.orderservice.response.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,16 +34,13 @@ public class OrderService{
     @Autowired
     private UserClient userClient;
 
-    public void removeCartItems(long restaurantId){
-
-    }
-
     public Order placeOrder(String email, OrderRequest orderRequest) {
         log.info("Creating an Order");
         Order order = Order.builder()
                 .amount(orderRequest.getTotalPrice())
                 .orderStatus("CREATED")
                 .restaurantId(orderRequest.getRestaurantId())
+                .email(email)
                 .build();
 
         Order newOrder = orderRepo.save(order);
@@ -60,7 +55,7 @@ public class OrderService{
         log.info("Calling Payment Service to complete the payment");
         PaymentRequest paymentDto
                 = PaymentRequest.builder()
-                .orderId(order.getId())
+                .orderId(newOrder.getId())
                 .paymentMode(orderRequest.getPaymentMode())
                 .amount(orderRequest.getTotalPrice())
                 .build();
@@ -70,24 +65,35 @@ public class OrderService{
             paymentClient.doPayment(paymentDto);
             log.info("Payment done Successfully. Changing the Oder status to PLACED");
             orderStatus = "PLACED";
-        } catch (Exception e) {
-            e.printStackTrace();
+        }
+        catch (Exception e) {
             log.error("Error occurred in payment. Changing order status to PAYMENT_FAILED");
             orderStatus = "PAYMENT_FAILED";
         }
-        order.setOrderStatus(orderStatus);
-        orderRepo.save(order);
-        log.info("Order Placed successfully with Order Id: {}", order.getId());
+        newOrder.setOrderStatus(orderStatus);
+        orderRepo.save(newOrder);
+        log.info("Order Placed successfully with Order Id: {}", newOrder.getId());
         userClient.removeCartItems(orderRequest.getRestaurantId());
         log.info(String.format("Discarded items from the cart for restaurant id: %s", orderRequest.getRestaurantId()));
-        return order;
+        return newOrder;
     }
 
-    public List<OrderResponse> getIncomingOrders(){
+    public List<OrderResponse> getOrders(String orderStatus){
         List<OrderResponse> orderResponses = new ArrayList<>();
-        List<Order> orders = orderRepo.findByOrderStatus("PLACED");
+        List<Order> orders = orderRepo.findByOrderStatus(orderStatus);
         orders.forEach(order -> {
             orderResponses.add(getOrderDetails(order.getId()));
+        });
+        return orderResponses;
+    }
+
+    public List<OrderResponse> getUserOrders(String email, String orderStatus){
+        List<OrderResponse> orderResponses = new ArrayList<>();
+        List<Order> orders = orderRepo.findByOrderStatus(orderStatus);
+        orders.forEach(order -> {
+            if (order.getEmail().equals(email)){
+                orderResponses.add(getOrderDetails(order.getId()));
+            }
         });
         return orderResponses;
     }
@@ -129,5 +135,13 @@ public class OrderService{
                 .amount(order.getAmount())
                 .build();
         return orderResponseDto;
+    }
+
+    public ReviewResponse addReview(String email, long restaurantId, ReviewRequest reviewRequest){
+        List<Order> orders = orderRepo.findByEmailAndRestaurantId(email, restaurantId);
+        if (orders.size() == 0){
+            throw new BadRequestException(String.format("You have not ordered anything from the restaurant id : %s", restaurantId));
+        }
+        return restaurantClient.addReview(restaurantId, reviewRequest);
     }
 }

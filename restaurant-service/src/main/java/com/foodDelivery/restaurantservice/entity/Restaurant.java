@@ -25,4 +25,7 @@ public class Restaurant{
             joinColumns = @JoinColumn(name = "restaurant_id"),
             inverseJoinColumns = @JoinColumn(name = "food_id"))
     private List<Food> menu;
+
+    @OneToMany(mappedBy = "restaurant")
+    List<Review> reviews;
 }

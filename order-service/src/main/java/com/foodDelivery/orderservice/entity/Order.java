@@ -22,6 +22,7 @@ public class Order{
     private Long restaurantId;
     private String orderStatus;
     private Double amount;
+    private String email;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.EAGER)
     private List<OrderInfo> orderInfo;
