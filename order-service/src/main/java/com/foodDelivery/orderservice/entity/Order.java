@@ -1,10 +1,13 @@
 package com.foodDelivery.orderservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Data
@@ -16,7 +19,10 @@ public class Order{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Long restaurant;
+    private Long restaurantId;
     private String orderStatus;
     private Double amount;
+
+    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER)
+    private List<OrderInfo> orderInfo;
 }

@@ -19,6 +19,7 @@ public class OAuthRequestInterceptor implements RequestInterceptor{
                 Jwt jwtToken = (Jwt) oauth2Token;
                 String accessToken = jwtToken.getTokenValue();
                 template.header("Authorization", "Bearer " + accessToken);
+                System.out.println(jwtToken.getClaims());
             }
         }
     }

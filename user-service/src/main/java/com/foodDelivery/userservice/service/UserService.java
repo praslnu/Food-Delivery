@@ -84,6 +84,14 @@ public class UserService{
         }
     }
 
+    public boolean removeCartItemsOfRestaurant(String email, long restaurantId){
+        List<CartItems> cartItems = cartItemsRepository.findAllByRestaurantId(restaurantId);
+        cartItems.forEach(cartItem -> {
+            removeFromCart(email, cartItem.getId());
+        });
+        return cartItems.size() == 0;
+    }
+
     public String removeFromCart(String email, long cartItemId){
         verifyCartItem(email, cartItemId);
         cartItemsRepository.findById(cartItemId)

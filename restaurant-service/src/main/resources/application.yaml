@@ -15,7 +15,7 @@ spring:
         registration:
           internal-client:
             provider: okta
-            authorization-grant-type: authorization_code
+            authorization-grant-type: client_credentials
             scope: internal
             client-id: 0oaavzo2y4J53AKFc5d7
             client-secret: PCKw5-8KRk-rvmgavHt6XXK7jMzyVElhoxMFTMIKk0sL-pXu0pvhQoiZDIUKsUlD

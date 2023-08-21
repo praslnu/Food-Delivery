@@ -3,12 +3,14 @@ package com.foodDelivery.restaurantservice.service;
 import com.foodDelivery.restaurantservice.entity.Food;
 import com.foodDelivery.restaurantservice.external.client.UserClient;
 import com.foodDelivery.restaurantservice.external.request.CartDetailsRequest;
+import com.foodDelivery.restaurantservice.mapper.FoodMapper;
 import com.foodDelivery.restaurantservice.mapper.RestaurantMapper;
 import com.foodDelivery.restaurantservice.request.RestaurantRequest;
 import com.foodDelivery.restaurantservice.entity.Restaurant;
 import com.foodDelivery.restaurantservice.exception.NotFoundException;
 import com.foodDelivery.restaurantservice.repository.FoodRepository;
 import com.foodDelivery.restaurantservice.repository.RestaurantRepo;
+import com.foodDelivery.restaurantservice.response.FoodResponse;
 import com.foodDelivery.restaurantservice.response.RestaurantResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ public class RestaurantService{
     private FoodRepository foodRepository;
     @Autowired
     private RestaurantMapper restaurantMapper;
+    @Autowired
+    private FoodMapper foodMapper;
     @Autowired
     private UserClient userClient;
 
@@ -44,8 +48,14 @@ public class RestaurantService{
         Restaurant restaurant
                 = restaurantRepo.findById(restaurantId)
                 .orElseThrow(() -> new NotFoundException(String.format("Restaurant with id:%s not found", restaurantId)));
-
         return restaurantMapper.getRestaurant(restaurant);
+    }
+
+    public FoodResponse getFoodById(long foodId) {
+        log.info("Get the Food for id: {}", foodId);
+        Food food = foodRepository.findById(foodId)
+                .orElseThrow(() -> new NotFoundException(String.format("Food with id:%s not found", foodId)));
+        return foodMapper.getFood(food);
     }
 
     public RestaurantResponse addFoodToRestaurant(long foodId, long restaurantId){

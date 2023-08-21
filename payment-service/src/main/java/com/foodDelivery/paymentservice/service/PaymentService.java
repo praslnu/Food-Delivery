@@ -1,6 +1,7 @@
 package com.foodDelivery.paymentservice.service;
 
 import com.foodDelivery.paymentservice.dto.PaymentMode;
+import com.foodDelivery.paymentservice.exception.NotFoundException;
 import com.foodDelivery.paymentservice.request.PaymentRequest;
 import com.foodDelivery.paymentservice.entity.PaymentDetails;
 import com.foodDelivery.paymentservice.repository.PaymentRepository;
@@ -33,6 +34,10 @@ public class PaymentService{
 
         PaymentDetails paymentDetails
                 = paymentRepository.findByOrderId(Long.valueOf(orderId));
+
+        if (paymentDetails == null){
+            throw new NotFoundException(String.format("Payment details not found for order id : %s", orderId));
+        }
 
         PaymentResponse paymentResponse
                 = PaymentResponse.builder()

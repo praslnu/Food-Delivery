@@ -4,9 +4,6 @@ import com.foodDelivery.userservice.entity.CartItems;
 import com.foodDelivery.userservice.model.CartDetails;
 import com.foodDelivery.userservice.request.PaymentDetailsRequest;
 import com.foodDelivery.userservice.service.UserService;
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.JWTParser;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,14 +20,15 @@ public class UserController{
     private UserService userService;
 
     @PutMapping("/cart")
-    public String addFoodToCart(Authentication authentication, @RequestBody CartDetails cartDetails) throws Exception
+    public ResponseEntity<CartItems> addFoodToCart(Authentication authentication, @RequestBody CartDetails cartDetails) throws Exception
     {
         CartItems cartItems = userService.addFoodToCart(cartDetails.getFoodId(), cartDetails.getRestaurantId(), cartDetails.getQuantity(), cartDetails.getPrice(), authentication.getName());
-        if (cartItems == null){
-            log.error("add items to cart failed");
-            throw new Exception("add items to cart failed");
-        }
-        return "Items added to the cart successfully";
+        return new ResponseEntity<>(cartItems, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/cart/restaurant/{restaurantId}")
+    public void removeCartItems(Authentication authentication, @PathVariable long restaurantId){
+        userService.removeCartItemsOfRestaurant(authentication.getName(), restaurantId);
     }
 
     @PutMapping("/cart/{cartItemId}")
@@ -50,7 +48,8 @@ public class UserController{
     }
 
     @PostMapping("/cart/checkout")
-    public void checkout(Authentication authentication, @RequestBody PaymentDetailsRequest paymentDetailsRequest){
+    public ResponseEntity<String> checkout(Authentication authentication, @RequestBody PaymentDetailsRequest paymentDetailsRequest){
         userService.checkOutItems(authentication.getName(), paymentDetailsRequest);
+        return new ResponseEntity<>("Checked out items Successfully", HttpStatus.OK);
     }
 }

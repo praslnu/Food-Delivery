@@ -23,8 +23,8 @@ public class OAuthRequestInterceptor implements RequestInterceptor{
             AbstractOAuth2Token oauth2Token = (AbstractOAuth2Token) authentication.getCredentials();
             if (oauth2Token instanceof Jwt) {
                 Jwt jwtToken = (Jwt) oauth2Token;
+                System.out.println();
                 String accessToken = jwtToken.getTokenValue();
-                System.out.println(accessToken);
                 template.header("Authorization", "Bearer " + accessToken);
             }
         }

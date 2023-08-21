@@ -1,6 +1,7 @@
 package com.foodDelivery.orderservice.external.client;
 
 import com.foodDelivery.orderservice.external.response.Restaurant;
+import com.foodDelivery.orderservice.response.FoodResponse;
 import com.foodDelivery.orderservice.response.RestaurantResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -11,4 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface RestaurantClient{
     @GetMapping("/{id}")
     public RestaurantResponse getRestaurantById(@PathVariable("id") long restaurantId);
+
+    @GetMapping("/food/{id}")
+    public FoodResponse getFoodById(@PathVariable("id") long foodId);
 }

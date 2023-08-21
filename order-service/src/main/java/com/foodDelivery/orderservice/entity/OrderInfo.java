@@ -1,4 +1,4 @@
-package com.foodDelivery.userservice.entity;
+package com.foodDelivery.orderservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -6,27 +6,22 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CartItems{
+public class OrderInfo{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
 
-    private long foodId;
-
-    private long restaurantId;
+    private Long foodId;
 
     @JsonIgnore
-    @ManyToOne(cascade=CascadeType.PERSIST)
-    @JoinColumn(name = "cart_id")
-    private Cart cart;
-
-    private int quantity;
-
-    private double price;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_id")
+    private Order order;
 }

@@ -1,20 +1,21 @@
-package com.foodDelivery.orderservice.dto;
+package com.foodDelivery.orderservice.response;
 
-import com.foodDelivery.orderservice.response.PaymentResponse;
-import com.foodDelivery.orderservice.response.RestaurantResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OrderResponseDto{
+public class OrderResponse{
     private long orderId;
     private String orderStatus;
     private double amount;
     private RestaurantResponse restaurantResponse;
+    private List<FoodResponse> foods;
     private PaymentResponse paymentResponse;
 }
