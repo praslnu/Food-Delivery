@@ -5,10 +5,12 @@ import com.foodDelivery.userservice.external.response.OrderResponse;
 import com.foodDelivery.userservice.model.CartDetails;
 import com.foodDelivery.userservice.request.PaymentDetailsRequest;
 import com.foodDelivery.userservice.service.UserService;
+import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -20,8 +22,9 @@ public class UserController{
     @Autowired
     private UserService userService;
 
+    @PreAuthorize("hasAuthority('user')")
     @PutMapping("/cart")
-    public ResponseEntity<CartItems> addFoodToCart(Authentication authentication, @RequestBody CartDetails cartDetails)
+    public ResponseEntity<CartItems> addFoodToCart(Authentication authentication, @RequestBody @Valid CartDetails cartDetails)
     {
         CartItems cartItems = userService.addFoodToCart(cartDetails.getFoodId(), cartDetails.getRestaurantId(), cartDetails.getQuantity(), cartDetails.getPrice(), authentication.getName());
         return new ResponseEntity<>(cartItems, HttpStatus.CREATED);

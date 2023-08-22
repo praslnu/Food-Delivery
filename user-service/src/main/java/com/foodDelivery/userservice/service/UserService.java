@@ -2,6 +2,7 @@ package com.foodDelivery.userservice.service;
 
 import com.foodDelivery.userservice.entity.Cart;
 import com.foodDelivery.userservice.entity.CartItems;
+import com.foodDelivery.userservice.exception.BadRequestException;
 import com.foodDelivery.userservice.exception.NotFoundException;
 import com.foodDelivery.userservice.external.client.OrderClient;
 import com.foodDelivery.userservice.external.request.OrderRequest;
@@ -12,7 +13,6 @@ import com.foodDelivery.userservice.request.PaymentDetailsRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -86,7 +86,11 @@ public class UserService{
     }
 
     public boolean removeCartItemsOfRestaurant(String email, long restaurantId){
-        List<CartItems> cartItems = cartItemsRepository.findAllByRestaurantId(restaurantId);
+        Cart cart = cartRepository.findByEmail(email);
+        if (cart == null) {
+            throw new NotFoundException(String.format("Cart not found for user email: %s", email));
+        }
+        List<CartItems> cartItems = cartItemsRepository.findAllByRestaurantIdAndCartId(restaurantId, cart.getId());
         cartItems.forEach(cartItem -> {
             removeFromCart(email, cartItem.getId());
         });
@@ -115,20 +119,24 @@ public class UserService{
             throw new NotFoundException(String.format("Cart not found for user email: %s", email));
         }
         List<Long> userCartRestaurants = cartItemsRepository.findAllRestaurantsOfUser(cart.getId());
+        if (userCartRestaurants.size() == 0){
+            throw new BadRequestException("Cart is empty!");
+        }
         userCartRestaurants.forEach(restaurantId -> {
-            List<CartItems> restaurantItem = cartItemsRepository.findAllByRestaurantId(restaurantId);
+            List<CartItems> restaurantItem = cartItemsRepository.findAllByRestaurantIdAndCartId(restaurantId , cart.getId());
             OrderRequest orderRequest = OrderRequest.builder()
                     .restaurantId(restaurantId)
                     .foods(new ArrayList<>())
                     .build();
-            final double[] totalPrice = {0.0};
+            double[] totalPrice = {0.0};
             restaurantItem.forEach(item -> {
+                System.out.println(item.getRestaurantId() + " " + item.getId());
                 orderRequest.getFoods().add(item.getFoodId());
                 totalPrice[0] += item.getPrice();
             });
             orderRequest.setTotalPrice(totalPrice[0]);
             orderRequest.setPaymentMode(paymentDetailsRequest.getPaymentMode());
-            System.out.println(orderRequest.getRestaurantId() + " " + orderRequest.getTotalPrice() + " " + orderRequest.getFoods().toString() + orderRequest.getPaymentMode());
+            System.out.println(orderRequest.getRestaurantId() + " " + orderRequest.getTotalPrice() + " " + orderRequest.getFoods().toString() + " " + orderRequest.getPaymentMode());
             log.info("Placing the order now");
             orderClient.placeOrder(orderRequest);
         });

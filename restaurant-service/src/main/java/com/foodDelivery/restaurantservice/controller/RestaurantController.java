@@ -1,12 +1,15 @@
 package com.foodDelivery.restaurantservice.controller;
 
-import com.foodDelivery.restaurantservice.external.request.CartDetailsRequest;
+import com.foodDelivery.restaurantservice.request.CartDetailsRequest;
 import com.foodDelivery.restaurantservice.request.RestaurantRequest;
 import com.foodDelivery.restaurantservice.request.ReviewRequest;
 import com.foodDelivery.restaurantservice.response.FoodResponse;
 import com.foodDelivery.restaurantservice.response.RestaurantResponse;
 import com.foodDelivery.restaurantservice.response.ReviewResponse;
 import com.foodDelivery.restaurantservice.service.RestaurantService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -40,14 +43,14 @@ public class RestaurantController{
 
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping
-    public ResponseEntity<Long> addRestaurant(@RequestBody RestaurantRequest productRequest) {
-        long restaurantId = restaurantService.addRestaurant(productRequest);
+    public ResponseEntity<Long> addRestaurant(@RequestBody @Valid RestaurantRequest restaurantRequest) {
+        long restaurantId = restaurantService.addRestaurant(restaurantRequest);
         return new ResponseEntity<>(restaurantId, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasAuthority('user') || hasAuthority('admin')")
     @GetMapping("/{id}")
-    public ResponseEntity<RestaurantResponse> getRestaurantById(@PathVariable("id") long restaurantId) {
+    public ResponseEntity<RestaurantResponse> getRestaurantById(@PathVariable("id") @NotNull(message = "Restaurant id is missing") Long restaurantId) {
         RestaurantResponse restaurant = restaurantService.getRestaurantById(restaurantId);
         return new ResponseEntity<>(restaurant, HttpStatus.OK);
     }
@@ -67,7 +70,7 @@ public class RestaurantController{
 
     @PreAuthorize("hasAuthority('user')")
     @PutMapping("/cart")
-    public ResponseEntity<String> addFoodToCart(Authentication authentication, @RequestBody CartDetailsRequest cartDetailsRequest){
+    public ResponseEntity<String> addFoodToCart(@RequestBody @Valid CartDetailsRequest cartDetailsRequest){
         return new ResponseEntity<>(restaurantService.addFoodToCart(cartDetailsRequest), HttpStatus.OK);
     }
 

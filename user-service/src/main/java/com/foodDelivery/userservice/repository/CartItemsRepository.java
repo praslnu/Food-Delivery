@@ -17,6 +17,9 @@ public interface CartItemsRepository extends JpaRepository<CartItems, Long>{
 
     List<CartItems> findAllByRestaurantId(long restaurantId);
 
+    @Query("select ci from CartItems ci where ci.restaurantId = :restaurantId and ci.cart.id = :cartId")
+    List<CartItems> findAllByRestaurantIdAndCartId(long restaurantId, long cartId);
+
     @Query("select ci.id from CartItems ci join Cart c on c.id = ci.cart.id where c.id = :cartId and ci.restaurantId = :restaurantId and ci.foodId = :foodId")
     Long findCartItemsByFoodIdAndRestaurantIdAndCartId(@Param("cartId") long cartId, @Param("restaurantId") long restaurantId, @Param("foodId") long foodId);
 }

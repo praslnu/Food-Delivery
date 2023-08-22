@@ -1,4 +1,4 @@
-package com.foodDelivery.userservice.model;
+package com.foodDelivery.restaurantservice.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -10,13 +10,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CartDetails{
+public class CartDetailsRequest{
     @NotNull(message = "Food id must not be empty")
     private Long foodId;
     @NotNull(message = "Restaurant Id not be empty")
     private Long restaurantId;
     @NotNull(message = "Quantity must not be empty")
     private Integer quantity;
-    @NotNull(message = "Price must not be empty")
     private Double price;
 }

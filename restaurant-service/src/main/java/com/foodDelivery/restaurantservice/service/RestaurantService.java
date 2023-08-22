@@ -3,7 +3,7 @@ package com.foodDelivery.restaurantservice.service;
 import com.foodDelivery.restaurantservice.entity.Food;
 import com.foodDelivery.restaurantservice.entity.Review;
 import com.foodDelivery.restaurantservice.external.client.UserClient;
-import com.foodDelivery.restaurantservice.external.request.CartDetailsRequest;
+import com.foodDelivery.restaurantservice.request.CartDetailsRequest;
 import com.foodDelivery.restaurantservice.mapper.FoodMapper;
 import com.foodDelivery.restaurantservice.mapper.RestaurantMapper;
 import com.foodDelivery.restaurantservice.mapper.ReviewMapper;
@@ -21,7 +21,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.stream.Collectors;
