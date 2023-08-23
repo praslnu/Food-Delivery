@@ -8,7 +8,6 @@ import com.foodDelivery.restaurantservice.response.RestaurantResponse;
 import com.foodDelivery.restaurantservice.response.ReviewResponse;
 import com.foodDelivery.restaurantservice.service.RestaurantService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;

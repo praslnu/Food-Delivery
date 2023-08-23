@@ -23,7 +23,6 @@ public class WebSecurityConfig{
                         oauth2ResourceServer
                                 .jwt(Customizer.withDefaults())
                 );
-
         return http.build();
     }
 }

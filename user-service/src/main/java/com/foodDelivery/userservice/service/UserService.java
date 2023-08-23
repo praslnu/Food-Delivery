@@ -36,20 +36,24 @@ public class UserService{
     private AddressMapper addressMapper;
 
     public CartItems addFoodToCart(long foodId, long restaurantId, int quantity, double price, String email){
+        log.info("Adding food to cart");
         Cart cart = cartRepository.findByEmail(email);
-        if (cart == null) {
+        if (Objects.isNull(cart)) {
+            log.info("creating a cart for user");
             cart = new Cart();
             cart.setEmail(email);
         }
         Long existingFoodItem = cartItemsRepository.findCartItemsByFoodIdAndRestaurantIdAndCartId(cart.getId(), restaurantId, foodId);
         CartItems cartItem;
-        if (existingFoodItem != null){
+        if (!Objects.isNull(existingFoodItem)){
+            log.info("Updating the existing cart item");
             cartItem = cartItemsRepository.findById(existingFoodItem)
                     .orElseThrow(() -> new NotFoundException(String.format("Cart item with id:%s not found", existingFoodItem)));
             cartItem.setQuantity(cartItem.getQuantity() + quantity);
         }
         else
         {
+            log.info("Adding item to the cart");
             cartItem = CartItems.builder()
                     .cart(cart)
                     .foodId(foodId)
@@ -69,7 +73,7 @@ public class UserService{
             cartItem.setQuantity(cartItem.getQuantity() + 1);
             cartItemsRepository.save(cartItem);
         }
-        else {
+        else if (type.equalsIgnoreCase("decrement")){
             if (cartItem.getQuantity() == 1){
                 removeFromCart(email, cartItemId);
             }
@@ -82,20 +86,23 @@ public class UserService{
     }
 
     public void verifyCartItem(String email, long cartItemId){
+        log.info("Verifying the cart details");
         Cart cart = cartRepository.findByEmail(email);
-        if (cart == null) {
+        if (Objects.isNull(cart)) {
+            log.error(String.format("Cart not found for email : %s", email));
             throw new NotFoundException(String.format("Cart not found for user email: %s", email));
         }
         List<CartItems> cartItems = cartItemsRepository.findAllByCart(cart);
         Optional<CartItems> cartItemById = cartItems.stream().filter(cartItem -> cartItem.getId() == cartItemId).findAny();
         if (!cartItemById.isPresent()){
+            log.info("Cart doesn't have an item");
             throw new NotFoundException(String.format("Cart doesn't have an item with id : %s", cartItemId));
         }
     }
 
     public boolean removeCartItemsOfRestaurant(String email, long restaurantId){
         Cart cart = cartRepository.findByEmail(email);
-        if (cart == null) {
+        if (Objects.isNull(cart)) {
             throw new NotFoundException(String.format("Cart not found for user email: %s", email));
         }
         List<CartItems> cartItems = cartItemsRepository.findAllByRestaurantIdAndCartId(restaurantId, cart.getId());
@@ -115,7 +122,7 @@ public class UserService{
 
     public List<CartItems> getCartItems(String email){
         Cart cart = cartRepository.findByEmail(email);
-        if (cart == null) {
+        if (Objects.isNull(cart)) {
             throw new NotFoundException(String.format("Cart not found for user email: %s", email));
         }
         return cartItemsRepository.findAllByCart(cart);
@@ -131,16 +138,14 @@ public class UserService{
         if (!userLocation.isPresent()){
             throw new NotFoundException(String.format("User Location Not Found!"));
         }
-        System.out.println("able to find user location");
         Cart cart = cartRepository.findByEmail(email);
-        if (cart == null) {
+        if (Objects.isNull(cart)) {
             throw new NotFoundException(String.format("Cart not found for user email: %s", email));
         }
         List<Long> userCartRestaurants = cartItemsRepository.findAllRestaurantsOfUser(cart.getId());
         if (userCartRestaurants.size() == 0){
             throw new BadRequestException("Cart is empty!");
         }
-        System.out.println("User cart details are verified here");
         userCartRestaurants.forEach(restaurantId -> {
             List<CartItems> restaurantItem = cartItemsRepository.findAllByRestaurantIdAndCartId(restaurantId , cart.getId());
             OrderRequest orderRequest = OrderRequest.builder()
@@ -150,7 +155,6 @@ public class UserService{
                     .build();
             double[] totalPrice = {0.0};
             restaurantItem.forEach(item -> {
-                System.out.println(item.getRestaurantId() + " " + item.getId());
                 orderRequest.getFoods().add(item.getFoodId());
                 totalPrice[0] += (item.getPrice() * item.getQuantity());
             });

@@ -33,33 +33,39 @@ public class UserController{
         return new ResponseEntity<>(cartItems, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAuthority('user') || hasAuthority('admin')")
     @DeleteMapping("/cart/restaurant/{restaurantId}")
     public void removeCartItems(Authentication authentication, @PathVariable long restaurantId){
         userService.removeCartItemsOfRestaurant(authentication.getName(), restaurantId);
     }
 
+    @PreAuthorize("hasAuthority('user') || hasAuthority('admin')")
     @PutMapping("/cart/{cartItemId}")
     public ResponseEntity<CartItems> adjustFoodInCart(Authentication authentication, @PathVariable long cartItemId, @RequestParam String type)
     {
         return new ResponseEntity<>(userService.adjustFoodQuantityInCart(authentication.getName(), cartItemId, type), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('user') || hasAuthority('admin')")
     @DeleteMapping("/cart/{cartItemId}")
     public ResponseEntity<String> removeCartItem(Authentication authentication, @PathVariable long cartItemId){
         return new ResponseEntity<>(userService.removeFromCart(authentication.getName(), cartItemId), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('user') || hasAuthority('admin')")
     @GetMapping("/cart")
     public ResponseEntity<List<CartItems>> getCartItems(Authentication authentication){
         return new ResponseEntity<>(userService.getCartItems(authentication.getName()), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('user')")
     @PostMapping("/cart/checkout")
     public ResponseEntity<String> checkout(Authentication authentication, @RequestBody PaymentDetailsRequest paymentDetailsRequest){
         userService.checkOutItems(authentication.getName(), paymentDetailsRequest);
         return new ResponseEntity<>("Checked out items Successfully", HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('user')")
     @GetMapping("/orders")
     public ResponseEntity<List<OrderResponse>> getOrders(){
         return new ResponseEntity<>(userService.getPastOrdered(), HttpStatus.OK);
@@ -71,13 +77,14 @@ public class UserController{
         return new ResponseEntity<>(userService.addAddress(authentication.getName(), addressRequest), HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAuthority('user')")
     @PostMapping("/favourites/{restaurantId}")
     public ResponseEntity<String> addToFavourites(Authentication authentication, @PathVariable Long restaurantId){
         userService.addToFavourites(authentication.getName(), restaurantId);
         return new ResponseEntity<>("Added to favourites successfully", HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('user') || hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('user')")
     @GetMapping("/favourites")
     public ResponseEntity<FavouritesResponse> getFavouriteRestaurants(Authentication authentication){
         return new ResponseEntity<>(userService.getFavouriteRestaurants(authentication.getName()), HttpStatus.CREATED);

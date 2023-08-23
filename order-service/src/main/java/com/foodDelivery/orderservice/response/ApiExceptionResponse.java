@@ -1,4 +1,4 @@
-package com.foodDelivery.orderservice.exception;
+package com.foodDelivery.orderservice.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

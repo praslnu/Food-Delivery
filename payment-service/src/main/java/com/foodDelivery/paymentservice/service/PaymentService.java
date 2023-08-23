@@ -31,11 +31,11 @@ public class PaymentService{
 
     public PaymentResponse getPaymentDetailsByOrderId(String orderId) {
         log.info("Getting payment details for the Order Id: {}", orderId);
-
         PaymentDetails paymentDetails
                 = paymentRepository.findByOrderId(Long.valueOf(orderId));
 
         if (paymentDetails == null){
+            log.error("Payment details not found for Order Id: {}", orderId);
             throw new NotFoundException(String.format("Payment details not found for order id : %s", orderId));
         }
 

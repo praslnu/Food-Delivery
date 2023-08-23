@@ -17,8 +17,8 @@ public class ApiExceptionHandler{
         return buildResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(CustException.class)
-    public ResponseEntity<ApiExceptionResponse> handleCustomException(CustException exception) {
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ApiExceptionResponse> handleCustomException(CustomException exception) {
         return buildResponseEntity(exception.getMessage(), HttpStatus.valueOf(exception.getStatusCode()));
     }
 

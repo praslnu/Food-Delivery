@@ -14,6 +14,7 @@ import com.foodDelivery.orderservice.repository.OrderRepo;
 import com.foodDelivery.orderservice.request.OrderRequest;
 import com.foodDelivery.orderservice.request.ReviewRequest;
 import com.foodDelivery.orderservice.response.*;
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,24 +23,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 @Log4j2
 public class OrderService{
-    @Autowired
     private OrderRepo orderRepo;
-    @Autowired
     private OrderInfoRepo orderInfoRepo;
-    @Autowired
     private PaymentClient paymentClient;
-    @Autowired
     private RestaurantClient restaurantClient;
-    @Autowired
     private UserClient userClient;
-    @Autowired
     private RabbitTemplate template;
 
     public Order placeOrder(String email, OrderRequest orderRequest) {
         log.info("Creating an Order");
-        System.out.println(orderRequest.getAddressId());
         Order order = Order.builder()
                 .amount(orderRequest.getTotalPrice())
                 .orderStatus("CREATED")
@@ -49,6 +44,7 @@ public class OrderService{
                 .build();
 
         Order newOrder = orderRepo.save(order);
+        log.info("getting food details");
         orderRequest.getFoods().forEach(food -> {
             OrderInfo orderInfo = OrderInfo.builder()
                     .foodId(food)
@@ -106,6 +102,7 @@ public class OrderService{
     public OrderResponse manageOrder(long orderId, OrderStatus orderStatus){
         Order order = orderRepo.findById(orderId).orElseThrow(() -> new NotFoundException(String.format("Order not found for the order Id: %s", orderId)));
         if (order.getOrderStatus().equals("PAYMENT_FAILED")){
+            log.error("Invalid Order id!, Payment issue");
             throw new BadRequestException("Invalid Order id!, Payment issue");
         }
         order.setOrderStatus(String.valueOf(orderStatus));
@@ -144,9 +141,10 @@ public class OrderService{
     }
 
     public ReviewResponse addReview(String email, long restaurantId, ReviewRequest reviewRequest){
+        log.info(String.format("adding the review for the restaurant id : %s", restaurantId));
         List<Order> orders = orderRepo.findByEmailAndRestaurantId(email, restaurantId);
-        System.out.println("reached here");
         if (orders.size() == 0){
+            log.error(String.format("Restaurant not found for id : %s", restaurantId));
             throw new BadRequestException(String.format("You have not ordered anything from the restaurant id : %s", restaurantId));
         }
         return restaurantClient.addReview(restaurantId, reviewRequest);

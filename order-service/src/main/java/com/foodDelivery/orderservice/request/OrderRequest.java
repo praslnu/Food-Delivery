@@ -14,7 +14,6 @@ import java.util.List;
 @Builder
 public class OrderRequest{
     private long restaurantId;
-
     private long addressId;
     private List<Long> foods;
     private double totalPrice;

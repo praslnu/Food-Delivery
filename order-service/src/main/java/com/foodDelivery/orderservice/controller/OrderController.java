@@ -8,7 +8,7 @@ import com.foodDelivery.orderservice.external.client.RestaurantClient;
 import com.foodDelivery.orderservice.request.OrderRequest;
 import com.foodDelivery.orderservice.response.ReviewResponse;
 import com.foodDelivery.orderservice.service.OrderService;
-import lombok.extern.log4j.Log4j2;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,36 +19,38 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/order")
-@Log4j2
 public class OrderController{
     @Autowired
     private OrderService orderService;
     @Autowired
     private RestaurantClient restaurantClient;
 
+    @PreAuthorize("hasAuthority('user')")
     @PostMapping("/placeOrder")
     public void placeOrder(Authentication authentication, @RequestBody OrderRequest orderRequest) {
         Order order = orderService.placeOrder(authentication.getName(), orderRequest);
     }
 
+    @PreAuthorize("hasAuthority('user') || hasAuthority('staff') || hasAuthority('admin')")
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderResponse> getOrderDetails(@PathVariable long orderId) {
         OrderResponse orderResponse = orderService.getOrderDetails(orderId);
         return new ResponseEntity<>(orderResponse, HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('staff')")
+    @PreAuthorize("hasAuthority('staff') || hasAuthority('admin')")
     @GetMapping
     public ResponseEntity<List<OrderResponse>> getIncomingOrders(){
         return new ResponseEntity<>(orderService.getOrders("PLACED"), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('staff')")
+    @PreAuthorize("hasAuthority('staff') || hasAuthority('admin')")
     @PutMapping("/{orderId}")
     public ResponseEntity<OrderResponse> manageOrder(@PathVariable long orderId, @RequestBody OrderStatusRequest orderStatus){
         return new ResponseEntity<>(orderService.manageOrder(orderId, orderStatus.getOrderStatus()), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('user')")
     @GetMapping("/past")
     public List<OrderResponse> getPastOrders(Authentication authentication){
         return orderService.getUserOrders(authentication.getName(), "PAYMENT_FAILED");
@@ -56,7 +58,7 @@ public class OrderController{
 
     @PreAuthorize("hasAuthority('user')")
     @PostMapping("/review/{restaurantId}")
-    public ResponseEntity<ReviewResponse> addReview(Authentication authentication, @PathVariable long restaurantId, @RequestBody ReviewRequest reviewRequest){
+    public ResponseEntity<ReviewResponse> addReview(Authentication authentication, @PathVariable long restaurantId, @RequestBody @Valid ReviewRequest reviewRequest){
         return new ResponseEntity<>(orderService.addReview(authentication.getName(), restaurantId, reviewRequest), HttpStatus.OK);
     }
 }
