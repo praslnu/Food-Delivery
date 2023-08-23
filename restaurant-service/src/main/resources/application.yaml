@@ -1,0 +1,8 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: RESTAURANT-SERVICE
+  config:
+    import: configserver:http://localhost:9296
