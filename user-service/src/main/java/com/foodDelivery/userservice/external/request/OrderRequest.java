@@ -17,5 +17,6 @@ public class OrderRequest{
     private long restaurantId;
     private List<Long> foods;
     private double totalPrice;
+    private long addressId;
     private PaymentMode paymentMode;
 }

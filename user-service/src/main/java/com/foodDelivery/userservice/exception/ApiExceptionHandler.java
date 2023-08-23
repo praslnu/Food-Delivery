@@ -1,12 +1,12 @@
 package com.foodDelivery.userservice.exception;
 
+import com.foodDelivery.userservice.response.ApiExceptionResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,8 +22,8 @@ public class ApiExceptionHandler{
         return buildResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(CustException.class)
-    public ResponseEntity<ApiExceptionResponse> handleCustomException(CustException exception) {
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ApiExceptionResponse> handleCustomException(CustomException exception) {
         return buildResponseEntity(exception.getMessage(), HttpStatus.valueOf(exception.getStatusCode()));
     }
 

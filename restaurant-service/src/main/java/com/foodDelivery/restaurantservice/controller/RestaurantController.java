@@ -8,7 +8,6 @@ import com.foodDelivery.restaurantservice.response.RestaurantResponse;
 import com.foodDelivery.restaurantservice.response.ReviewResponse;
 import com.foodDelivery.restaurantservice.service.RestaurantService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -50,7 +49,7 @@ public class RestaurantController{
 
     @PreAuthorize("hasAuthority('user') || hasAuthority('admin')")
     @GetMapping("/{id}")
-    public ResponseEntity<RestaurantResponse> getRestaurantById(@PathVariable("id") @NotNull(message = "Restaurant id is missing") Long restaurantId) {
+    public ResponseEntity<RestaurantResponse> getRestaurantById(@PathVariable("id") Long restaurantId) {
         RestaurantResponse restaurant = restaurantService.getRestaurantById(restaurantId);
         return new ResponseEntity<>(restaurant, HttpStatus.OK);
     }
@@ -78,5 +77,11 @@ public class RestaurantController{
     @PostMapping("/review/{restaurantId}")
     public ReviewResponse addReview(Authentication authentication, @PathVariable long restaurantId, @RequestBody ReviewRequest reviewRequest){
         return restaurantService.addReview(authentication.getName(), restaurantId, reviewRequest);
+    }
+
+    @PreAuthorize("hasAuthority('user')")
+    @PostMapping("/favourites/{restaurantId}")
+    public ResponseEntity<String> addToFavourites(@PathVariable long restaurantId){
+        return new ResponseEntity<>(restaurantService.addToFavourites(restaurantId), HttpStatus.OK);
     }
 }

@@ -9,11 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserResponse{
-    private long id;
-    private String userName;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private long phoneNumber;
+public class AddressResponse{
+    private Long id;
+    private String streetLine1;
+    private String streetLine2;
+    private String city;
+    private Long pinCode;
 }

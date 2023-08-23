@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -100,7 +101,7 @@ public class RestaurantService{
         Food food = foodRepository.findById(cartDetailsRequest.getFoodId())
                 .orElseThrow(() -> new NotFoundException(String.format("Food with id:%s not found", cartDetailsRequest.getFoodId())));
         restaurant.getMenu().stream().filter(menu -> cartDetailsRequest.getFoodId() == menu.getId()).findAny().orElseThrow(() -> new NotFoundException(String.format("Food with id:%s is not available in the restaurant", cartDetailsRequest.getFoodId())));
-        if (restaurant == null){
+        if (Objects.isNull(restaurant)){
             throw new NotFoundException(String.format("Food with id:%s Not available in the restaurant", cartDetailsRequest.getFoodId()));
         }
         cartDetailsRequest.setPrice(food.getPrice());
@@ -117,5 +118,11 @@ public class RestaurantService{
                 .restaurant(restaurant)
                 .build();
         return reviewMapper.getReview(reviewRepo.save(review));
+    }
+
+    public String addToFavourites(long restaurantId){
+        restaurantRepo.findById(restaurantId)
+                .orElseThrow(() -> new NotFoundException(String.format("Restaurant with id:%s not found", restaurantId)));
+        return userClient.addToFavourites(restaurantId);
     }
 }

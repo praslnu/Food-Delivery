@@ -15,6 +15,7 @@ import com.foodDelivery.orderservice.request.OrderRequest;
 import com.foodDelivery.orderservice.request.ReviewRequest;
 import com.foodDelivery.orderservice.response.*;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -33,14 +34,18 @@ public class OrderService{
     private RestaurantClient restaurantClient;
     @Autowired
     private UserClient userClient;
+    @Autowired
+    private RabbitTemplate template;
 
     public Order placeOrder(String email, OrderRequest orderRequest) {
         log.info("Creating an Order");
+        System.out.println(orderRequest.getAddressId());
         Order order = Order.builder()
                 .amount(orderRequest.getTotalPrice())
                 .orderStatus("CREATED")
                 .restaurantId(orderRequest.getRestaurantId())
                 .email(email)
+                .addressId(orderRequest.getAddressId())
                 .build();
 
         Order newOrder = orderRepo.save(order);
@@ -89,7 +94,7 @@ public class OrderService{
 
     public List<OrderResponse> getUserOrders(String email, String orderStatus){
         List<OrderResponse> orderResponses = new ArrayList<>();
-        List<Order> orders = orderRepo.findByOrderStatus(orderStatus);
+        List<Order> orders = orderRepo.findByOrderStatusNot(orderStatus);
         orders.forEach(order -> {
             if (order.getEmail().equals(email)){
                 orderResponses.add(getOrderDetails(order.getId()));
@@ -105,6 +110,7 @@ public class OrderService{
         }
         order.setOrderStatus(String.valueOf(orderStatus));
         orderRepo.save(order);
+        template.convertAndSend(System.getenv("EXCHANGE"), System.getenv("ROUTING_KEY"), String.format("Hi Customer, Your Order Has been %s", String.valueOf(orderStatus)));
         return getOrderDetails(orderId);
     }
 
@@ -139,6 +145,7 @@ public class OrderService{
 
     public ReviewResponse addReview(String email, long restaurantId, ReviewRequest reviewRequest){
         List<Order> orders = orderRepo.findByEmailAndRestaurantId(email, restaurantId);
+        System.out.println("reached here");
         if (orders.size() == 0){
             throw new BadRequestException(String.format("You have not ordered anything from the restaurant id : %s", restaurantId));
         }

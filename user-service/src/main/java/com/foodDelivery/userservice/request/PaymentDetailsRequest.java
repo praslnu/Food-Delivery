@@ -11,5 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentDetailsRequest{
+    private Long addressId;
     private PaymentMode paymentMode;
 }

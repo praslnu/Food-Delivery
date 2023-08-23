@@ -1,31 +1,39 @@
 package com.foodDelivery.userservice.service;
 
-import com.foodDelivery.userservice.entity.Cart;
-import com.foodDelivery.userservice.entity.CartItems;
+import com.foodDelivery.userservice.entity.*;
 import com.foodDelivery.userservice.exception.BadRequestException;
 import com.foodDelivery.userservice.exception.NotFoundException;
 import com.foodDelivery.userservice.external.client.OrderClient;
+import com.foodDelivery.userservice.external.client.RestaurantClient;
 import com.foodDelivery.userservice.external.request.OrderRequest;
 import com.foodDelivery.userservice.external.response.OrderResponse;
-import com.foodDelivery.userservice.repository.CartItemsRepository;
-import com.foodDelivery.userservice.repository.CartRepository;
+import com.foodDelivery.userservice.mapper.AddressMapper;
+import com.foodDelivery.userservice.repository.*;
+import com.foodDelivery.userservice.request.AddressRequest;
 import com.foodDelivery.userservice.request.PaymentDetailsRequest;
+import com.foodDelivery.userservice.response.AddressResponse;
+import com.foodDelivery.userservice.response.FavouritesResponse;
+import com.foodDelivery.userservice.response.RestaurantResponse;
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
 @Log4j2
+@AllArgsConstructor
 public class UserService{
-    @Autowired
     private CartRepository cartRepository;
-    @Autowired
     private CartItemsRepository cartItemsRepository;
-    @Autowired
+    private UserDetailsRepository userDetailsRepository;
+    private LocationRepository locationRepository;
+    private FavouritesRepository favouritesRepository;
     private OrderClient orderClient;
+    private RestaurantClient restaurantClient;
+    private AddressMapper addressMapper;
 
     public CartItems addFoodToCart(long foodId, long restaurantId, int quantity, double price, String email){
         Cart cart = cartRepository.findByEmail(email);
@@ -114,6 +122,16 @@ public class UserService{
     }
 
     public void checkOutItems(String email, PaymentDetailsRequest paymentDetailsRequest){
+        UserDetails userDetails = userDetailsRepository.findByEmail(email);
+        if (Objects.isNull(userDetails)){
+            throw new NotFoundException("Address not found for the user");
+        }
+        List<Location> locations = locationRepository.findAllByUserDetails(userDetails);
+        Optional<Location> userLocation = locations.stream().filter(location -> location.getId() == paymentDetailsRequest.getAddressId()).findFirst();
+        if (!userLocation.isPresent()){
+            throw new NotFoundException(String.format("User Location Not Found!"));
+        }
+        System.out.println("able to find user location");
         Cart cart = cartRepository.findByEmail(email);
         if (cart == null) {
             throw new NotFoundException(String.format("Cart not found for user email: %s", email));
@@ -122,21 +140,22 @@ public class UserService{
         if (userCartRestaurants.size() == 0){
             throw new BadRequestException("Cart is empty!");
         }
+        System.out.println("User cart details are verified here");
         userCartRestaurants.forEach(restaurantId -> {
             List<CartItems> restaurantItem = cartItemsRepository.findAllByRestaurantIdAndCartId(restaurantId , cart.getId());
             OrderRequest orderRequest = OrderRequest.builder()
                     .restaurantId(restaurantId)
+                    .addressId(paymentDetailsRequest.getAddressId())
                     .foods(new ArrayList<>())
                     .build();
             double[] totalPrice = {0.0};
             restaurantItem.forEach(item -> {
                 System.out.println(item.getRestaurantId() + " " + item.getId());
                 orderRequest.getFoods().add(item.getFoodId());
-                totalPrice[0] += item.getPrice();
+                totalPrice[0] += (item.getPrice() * item.getQuantity());
             });
             orderRequest.setTotalPrice(totalPrice[0]);
             orderRequest.setPaymentMode(paymentDetailsRequest.getPaymentMode());
-            System.out.println(orderRequest.getRestaurantId() + " " + orderRequest.getTotalPrice() + " " + orderRequest.getFoods().toString() + " " + orderRequest.getPaymentMode());
             log.info("Placing the order now");
             orderClient.placeOrder(orderRequest);
         });
@@ -144,5 +163,53 @@ public class UserService{
 
     public List<OrderResponse> getPastOrdered(){
         return orderClient.getPastOrders();
+    }
+
+    public UserDetails findUserDetails(String email){
+        UserDetails userDetail = userDetailsRepository.findByEmail(email);
+        if (Objects.isNull(userDetail)){
+            userDetail = new UserDetails();
+            userDetail.setEmail(email);
+            userDetail = userDetailsRepository.save(userDetail);
+        }
+        return userDetail;
+    }
+
+    public AddressResponse addAddress(String email, AddressRequest addressRequest){
+        UserDetails userDetail = findUserDetails(email);
+        Location location = Location.builder()
+                .streetLine1(addressRequest.getStreetLine1())
+                .streetLine2(addressRequest.getStreetLine2())
+                .city(addressRequest.getCity())
+                .pinCode(addressRequest.getPinCode())
+                .userDetails(userDetail)
+                .build();
+        return addressMapper.getAddress(locationRepository.save(location));
+    }
+
+    public void addToFavourites(String email, long restaurantId){
+        UserDetails userDetail = findUserDetails(email);
+        Favourites favourites = favouritesRepository.findByRestaurantId(restaurantId);
+        if (!Objects.isNull(favourites)){
+            throw new BadRequestException("Restaurant is already in favourites");
+        }
+        favourites = Favourites.builder()
+                .userDetails(userDetail)
+                .restaurantId(restaurantId)
+                .build();
+        favouritesRepository.save(favourites);
+    }
+
+    public FavouritesResponse getFavouriteRestaurants(String email){
+        UserDetails userDetails = userDetailsRepository.findByEmail(email);
+        List<RestaurantResponse> restaurantResponses = new ArrayList<>();
+        userDetails.getFavourites().forEach(favourites -> {
+            RestaurantResponse restaurantResponse = restaurantClient.getRestaurantById(favourites.getRestaurantId());
+            restaurantResponses.add(restaurantResponse);
+        });
+        FavouritesResponse favouritesResponse = FavouritesResponse.builder()
+                .favouriteRestaurants(restaurantResponses)
+                .build();
+        return favouritesResponse;
     }
 }

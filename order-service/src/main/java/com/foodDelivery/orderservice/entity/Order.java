@@ -20,6 +20,7 @@ public class Order{
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private Long restaurantId;
+    private Long addressId;
     private String orderStatus;
     private Double amount;
     private String email;

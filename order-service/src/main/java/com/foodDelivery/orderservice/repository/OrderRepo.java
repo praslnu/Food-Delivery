@@ -10,6 +10,8 @@ import java.util.List;
 public interface OrderRepo extends JpaRepository<Order, Long>{
     List<Order> findByOrderStatus(String orderStatus);
 
+    List<Order> findByOrderStatusNot(String orderStatus);
+
     @Query("SELECT o FROM Order o WHERE o.email = :email and o.restaurantId = :restaurantId and o.orderStatus = 'DELIVERED'")
     List<Order> findByEmailAndRestaurantId(String email, long restaurantId);
 }

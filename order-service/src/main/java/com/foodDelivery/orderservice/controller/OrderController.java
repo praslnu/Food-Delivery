@@ -51,9 +51,10 @@ public class OrderController{
 
     @GetMapping("/past")
     public List<OrderResponse> getPastOrders(Authentication authentication){
-        return orderService.getUserOrders(authentication.getName(), "DELIVERED");
+        return orderService.getUserOrders(authentication.getName(), "PAYMENT_FAILED");
     }
 
+    @PreAuthorize("hasAuthority('user')")
     @PostMapping("/review/{restaurantId}")
     public ResponseEntity<ReviewResponse> addReview(Authentication authentication, @PathVariable long restaurantId, @RequestBody ReviewRequest reviewRequest){
         return new ResponseEntity<>(orderService.addReview(authentication.getName(), restaurantId, reviewRequest), HttpStatus.OK);
