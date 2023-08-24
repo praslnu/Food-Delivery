@@ -89,4 +89,10 @@ public class UserController{
     public ResponseEntity<FavouritesResponse> getFavouriteRestaurants(Authentication authentication){
         return new ResponseEntity<>(userService.getFavouriteRestaurants(authentication.getName()), HttpStatus.CREATED);
     }
+
+    @PreAuthorize("hasAuthority('user')")
+    @GetMapping("/address")
+    public ResponseEntity<List<AddressResponse>> getAddress(Authentication authentication){
+        return new ResponseEntity<>(userService.getUserAddress(authentication.getName()), HttpStatus.OK);
+    }
 }

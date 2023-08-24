@@ -216,4 +216,18 @@ public class UserService{
                 .build();
         return favouritesResponse;
     }
+
+    public List<AddressResponse> getUserAddress(String email){
+        UserDetails userDetails = userDetailsRepository.findByEmail(email);
+        if (Objects.isNull(userDetails)){
+            throw new NotFoundException(String.format("Address not found for %s", email));
+        }
+        List<Location> addresses = locationRepository.findAllByUserDetails(userDetails);
+        List<AddressResponse> addressResponses = new ArrayList<>();
+        addresses.forEach(location -> {
+            AddressResponse addressResponse = addressMapper.getAddress(location);
+            addressResponses.add(addressResponse);
+        });
+        return addressResponses;
+    }
 }

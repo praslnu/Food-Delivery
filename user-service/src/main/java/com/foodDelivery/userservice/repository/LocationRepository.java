@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface LocationRepository extends JpaRepository<Location, Long>{
-    List<Location> findAllByUserDetails(UserDetails address);
+    List<Location> findAllByUserDetails(UserDetails userDetails);
 }
