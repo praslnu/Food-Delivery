@@ -33,7 +33,7 @@ public class OrderService{
     private UserClient userClient;
     private RabbitTemplate template;
 
-    public Order placeOrder(String email, OrderRequest orderRequest) {
+    public void placeOrder(String email, OrderRequest orderRequest) {
         log.info("Creating an Order");
         Order order = Order.builder()
                 .amount(orderRequest.getTotalPrice())
@@ -76,7 +76,6 @@ public class OrderService{
         log.info("Order Placed successfully with Order Id: {}", newOrder.getId());
         userClient.removeCartItems(orderRequest.getRestaurantId());
         log.info(String.format("Discarded items from the cart for restaurant id: %s", orderRequest.getRestaurantId()));
-        return newOrder;
     }
 
     public List<OrderResponse> getOrders(String orderStatus){

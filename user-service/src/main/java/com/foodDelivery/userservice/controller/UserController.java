@@ -7,6 +7,7 @@ import com.foodDelivery.userservice.request.AddressRequest;
 import com.foodDelivery.userservice.request.PaymentDetailsRequest;
 import com.foodDelivery.userservice.response.AddressResponse;
 import com.foodDelivery.userservice.response.FavouritesResponse;
+import com.foodDelivery.userservice.response.SuccessResponse;
 import com.foodDelivery.userservice.service.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
@@ -27,10 +28,10 @@ public class UserController{
 
     @PreAuthorize("hasAuthority('user')")
     @PutMapping("/cart")
-    public ResponseEntity<CartItems> addFoodToCart(Authentication authentication, @RequestBody @Valid CartDetails cartDetails)
+    public ResponseEntity<String> addFoodToCart(Authentication authentication, @RequestBody @Valid CartDetails cartDetails)
     {
-        CartItems cartItems = userService.addFoodToCart(cartDetails.getFoodId(), cartDetails.getRestaurantId(), cartDetails.getQuantity(), cartDetails.getPrice(), authentication.getName());
-        return new ResponseEntity<>(cartItems, HttpStatus.CREATED);
+        userService.addFoodToCart(cartDetails.getFoodId(), cartDetails.getRestaurantId(), cartDetails.getQuantity(), cartDetails.getPrice(), authentication.getName());
+        return new ResponseEntity<>("Successfully added food to cart", HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasAuthority('user') || hasAuthority('admin')")
@@ -48,8 +49,11 @@ public class UserController{
 
     @PreAuthorize("hasAuthority('user') || hasAuthority('admin')")
     @DeleteMapping("/cart/{cartItemId}")
-    public ResponseEntity<String> removeCartItem(Authentication authentication, @PathVariable long cartItemId){
-        return new ResponseEntity<>(userService.removeFromCart(authentication.getName(), cartItemId), HttpStatus.OK);
+    public ResponseEntity<SuccessResponse> removeCartItem(Authentication authentication, @PathVariable long cartItemId){
+        SuccessResponse successResponse = SuccessResponse.builder()
+                .message(userService.removeFromCart(authentication.getName(), cartItemId))
+                .build();
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('user') || hasAuthority('admin')")
@@ -60,9 +64,12 @@ public class UserController{
 
     @PreAuthorize("hasAuthority('user')")
     @PostMapping("/cart/checkout")
-    public ResponseEntity<String> checkout(Authentication authentication, @RequestBody PaymentDetailsRequest paymentDetailsRequest){
+    public ResponseEntity<SuccessResponse> checkout(Authentication authentication, @RequestBody PaymentDetailsRequest paymentDetailsRequest){
         userService.checkOutItems(authentication.getName(), paymentDetailsRequest);
-        return new ResponseEntity<>("Checked out items Successfully", HttpStatus.OK);
+        SuccessResponse successResponse = SuccessResponse.builder()
+                .message("Checked out items Successfully")
+                .build();
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('user')")
@@ -79,9 +86,12 @@ public class UserController{
 
     @PreAuthorize("hasAuthority('user')")
     @PostMapping("/favourites/{restaurantId}")
-    public ResponseEntity<String> addToFavourites(Authentication authentication, @PathVariable Long restaurantId){
+    public ResponseEntity<SuccessResponse> addToFavourites(Authentication authentication, @PathVariable Long restaurantId){
         userService.addToFavourites(authentication.getName(), restaurantId);
-        return new ResponseEntity<>("Added to favourites successfully", HttpStatus.OK);
+        SuccessResponse successResponse = SuccessResponse.builder()
+                .message("Added to favourites successfully")
+                .build();
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('user')")

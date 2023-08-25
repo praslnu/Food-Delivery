@@ -3,9 +3,7 @@ package com.foodDelivery.restaurantservice.controller;
 import com.foodDelivery.restaurantservice.request.CartDetailsRequest;
 import com.foodDelivery.restaurantservice.request.RestaurantRequest;
 import com.foodDelivery.restaurantservice.request.ReviewRequest;
-import com.foodDelivery.restaurantservice.response.FoodResponse;
-import com.foodDelivery.restaurantservice.response.RestaurantResponse;
-import com.foodDelivery.restaurantservice.response.ReviewResponse;
+import com.foodDelivery.restaurantservice.response.*;
 import com.foodDelivery.restaurantservice.service.RestaurantService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/restaurant")
@@ -27,11 +26,11 @@ public class RestaurantController{
     @GetMapping
     public ResponseEntity<List<RestaurantResponse>> getRestaurants(Pageable pageable, @RequestParam(required = false) String name, @RequestParam(required = false) String foodName) {
         List<RestaurantResponse> restaurants;
-        if (name != null && foodName != null) {
+        if (!Objects.isNull(name) && !Objects.isNull(foodName)) {
             restaurants = restaurantService.filterRestaurantsByNameAndFood(pageable, name, foodName);
-        } else if (name != null) {
+        } else if (!Objects.isNull(foodName)) {
             restaurants = restaurantService.filterRestaurantsByName(pageable, name);
-        } else if (foodName != null) {
+        } else if (!Objects.isNull(foodName)) {
             restaurants = restaurantService.filterRestaurantsByFood(pageable, foodName);
         } else {
             restaurants = restaurantService.getAllRestaurants(pageable);
@@ -41,9 +40,8 @@ public class RestaurantController{
 
     @PreAuthorize("hasAuthority('admin')")
     @PostMapping
-    public ResponseEntity<Long> addRestaurant(@RequestBody @Valid RestaurantRequest restaurantRequest) {
-        long restaurantId = restaurantService.addRestaurant(restaurantRequest);
-        return new ResponseEntity<>(restaurantId, HttpStatus.CREATED);
+    public ResponseEntity<NewRestaurantResponse> addRestaurant(@RequestBody @Valid RestaurantRequest restaurantRequest) {
+        return new ResponseEntity<>(restaurantService.addRestaurant(restaurantRequest), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasAuthority('user') || hasAuthority('admin')")
@@ -61,6 +59,16 @@ public class RestaurantController{
     }
 
     @PreAuthorize("hasAuthority('admin')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<SuccessResponse> deleteRestaurant(@PathVariable("id") long restaurantId) {
+        restaurantService.deleteRestaurantId(restaurantId);
+        SuccessResponse successResponse = SuccessResponse.builder()
+                .message("Deleted Restaurant Successfully")
+                .build();
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('admin')")
     @PutMapping("/{restaurantId}/food/{foodId}")
     public ResponseEntity<RestaurantResponse> addFoodToRestaurant(@PathVariable long restaurantId, @PathVariable long foodId){
         return new ResponseEntity<>(restaurantService.addFoodToRestaurant(foodId, restaurantId), HttpStatus.OK);
@@ -68,8 +76,11 @@ public class RestaurantController{
 
     @PreAuthorize("hasAuthority('user')")
     @PutMapping("/cart")
-    public ResponseEntity<String> addFoodToCart(@RequestBody @Valid CartDetailsRequest cartDetailsRequest){
-        return new ResponseEntity<>(restaurantService.addFoodToCart(cartDetailsRequest), HttpStatus.OK);
+    public ResponseEntity<SuccessResponse> addFoodToCart(@RequestBody @Valid CartDetailsRequest cartDetailsRequest){
+        SuccessResponse successResponse = SuccessResponse.builder()
+                .message(restaurantService.addFoodToCart(cartDetailsRequest))
+                .build();
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('user')")
@@ -78,9 +89,18 @@ public class RestaurantController{
         return restaurantService.addReview(authentication.getName(), restaurantId, reviewRequest);
     }
 
+    @PreAuthorize("hasAuthority('user') || hasAuthority('admin') || hasAuthority('staff')")
+    @GetMapping("/review/{restaurantId}")
+    public List<ReviewResponse> getReview(@PathVariable long restaurantId){
+        return restaurantService.getReviews(restaurantId);
+    }
+
     @PreAuthorize("hasAuthority('user')")
     @PostMapping("/favourites/{restaurantId}")
-    public ResponseEntity<String> addToFavourites(@PathVariable long restaurantId){
-        return new ResponseEntity<>(restaurantService.addToFavourites(restaurantId), HttpStatus.OK);
+    public ResponseEntity<SuccessResponse> addToFavourites(@PathVariable long restaurantId){
+        SuccessResponse successResponse = SuccessResponse.builder()
+                .message(restaurantService.addToFavourites(restaurantId))
+                .build();
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 }

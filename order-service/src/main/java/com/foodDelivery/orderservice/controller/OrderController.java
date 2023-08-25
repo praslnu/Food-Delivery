@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.CircuitBreaker;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +26,16 @@ public class OrderController{
     @Autowired
     private RestaurantClient restaurantClient;
 
+    @GetMapping("/restaurantServiceFallBack")
+    public String restaurantServiceFallback() {
+        return "Order Service is down!";
+    }
+
     @PreAuthorize("hasAuthority('user')")
     @PostMapping("/placeOrder")
-    public void placeOrder(Authentication authentication, @RequestBody OrderRequest orderRequest) {
-        Order order = orderService.placeOrder(authentication.getName(), orderRequest);
+    public String placeOrder(Authentication authentication, @RequestBody OrderRequest orderRequest) {
+        orderService.placeOrder(authentication.getName(), orderRequest);
+        return "Successfully place an order";
     }
 
     @PreAuthorize("hasAuthority('user') || hasAuthority('staff') || hasAuthority('admin')")

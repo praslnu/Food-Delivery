@@ -35,7 +35,7 @@ public class UserService{
     private RestaurantClient restaurantClient;
     private AddressMapper addressMapper;
 
-    public CartItems addFoodToCart(long foodId, long restaurantId, int quantity, double price, String email){
+    public void addFoodToCart(long foodId, long restaurantId, int quantity, double price, String email){
         log.info("Adding food to cart");
         Cart cart = cartRepository.findByEmail(email);
         if (Objects.isNull(cart)) {
@@ -62,7 +62,7 @@ public class UserService{
                     .price(price)
                     .build();
         }
-        return cartItemsRepository.save(cartItem);
+        cartItemsRepository.save(cartItem);
     }
 
     public CartItems adjustFoodQuantityInCart(String email, long cartItemId, String type){

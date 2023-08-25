@@ -22,3 +22,9 @@ spring:
         provider:
           okta:
             issuer-uri: ${issuer}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      external:
+        registerHealthIndicator: true

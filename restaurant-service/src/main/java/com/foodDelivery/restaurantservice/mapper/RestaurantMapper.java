@@ -4,6 +4,7 @@ import com.foodDelivery.restaurantservice.entity.Food;
 import com.foodDelivery.restaurantservice.entity.Restaurant;
 import com.foodDelivery.restaurantservice.request.FoodRequest;
 import com.foodDelivery.restaurantservice.request.RestaurantRequest;
+import com.foodDelivery.restaurantservice.response.NewRestaurantResponse;
 import com.foodDelivery.restaurantservice.response.RestaurantResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,11 @@ public class RestaurantMapper{
     public RestaurantResponse getRestaurant(Restaurant restaurant) {
         RestaurantResponse restaurantResponse = modelMapper.map(restaurant, RestaurantResponse.class);
         return restaurantResponse;
+    }
+
+    public NewRestaurantResponse getNewRestaurant(Restaurant restaurant) {
+        NewRestaurantResponse newRestaurantResponse = modelMapper.map(restaurant, NewRestaurantResponse.class);
+        return newRestaurantResponse;
     }
 
     public Restaurant getRestaurant(RestaurantRequest restaurantRequest) {

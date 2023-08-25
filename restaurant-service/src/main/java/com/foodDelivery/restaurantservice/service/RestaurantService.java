@@ -15,6 +15,7 @@ import com.foodDelivery.restaurantservice.repository.FoodRepository;
 import com.foodDelivery.restaurantservice.repository.RestaurantRepo;
 import com.foodDelivery.restaurantservice.request.ReviewRequest;
 import com.foodDelivery.restaurantservice.response.FoodResponse;
+import com.foodDelivery.restaurantservice.response.NewRestaurantResponse;
 import com.foodDelivery.restaurantservice.response.RestaurantResponse;
 import com.foodDelivery.restaurantservice.response.ReviewResponse;
 import lombok.extern.log4j.Log4j2;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -60,11 +62,11 @@ public class RestaurantService{
         return restaurantRepo.findByFoodName(foodName.toLowerCase(), pageable).stream().map(restaurant -> restaurantMapper.getRestaurant(restaurant)).collect(Collectors.toList());
     }
 
-    public Long addRestaurant(RestaurantRequest restaurantRequest) {
+    public NewRestaurantResponse addRestaurant(RestaurantRequest restaurantRequest) {
         log.info("Adding Restaurant..");
         Restaurant restaurant = restaurantRepo.save(restaurantMapper.getRestaurant(restaurantRequest));
         log.info("Restaurant Created");
-        return restaurant.getId();
+        return restaurantMapper.getNewRestaurant(restaurant);
     }
 
     public RestaurantResponse getRestaurantById(long restaurantId) {
@@ -80,6 +82,12 @@ public class RestaurantService{
         Food food = foodRepository.findById(foodId)
                 .orElseThrow(() -> new NotFoundException(String.format("Food with id:%s not found", foodId)));
         return foodMapper.getFood(food);
+    }
+
+    public void deleteRestaurantId(long restaurantId) {
+        log.info("Get the Food for id: {}", restaurantId);
+        restaurantRepo.deleteById(restaurantId);
+        log.info("deleted the restaurant having id: {}", restaurantId);
     }
 
     public RestaurantResponse addFoodToRestaurant(long foodId, long restaurantId){
@@ -105,7 +113,7 @@ public class RestaurantService{
             throw new NotFoundException(String.format("Food with id:%s Not available in the restaurant", cartDetailsRequest.getFoodId()));
         }
         cartDetailsRequest.setPrice(food.getPrice());
-        return userClient.addFoodToCart(cartDetailsRequest);
+        return userClient.addFoodToCart(cartDetailsRequest).getBody();
     }
 
     public ReviewResponse addReview(String email, long restaurantId, ReviewRequest reviewRequest){
@@ -120,9 +128,20 @@ public class RestaurantService{
         return reviewMapper.getReview(reviewRepo.save(review));
     }
 
+    public List<ReviewResponse> getReviews(long restaurantId){
+        Restaurant restaurant = restaurantRepo.findById(restaurantId)
+                .orElseThrow(() -> new NotFoundException(String.format("Restaurant with id:%s not found", restaurantId)));
+        List<Review> reviews = restaurant.getReviews();
+        List<ReviewResponse> reviewResponses = new ArrayList<>();
+        reviews.forEach(review -> {
+            reviewResponses.add(reviewMapper.getReview(review));
+        });
+        return reviewResponses;
+    }
+
     public String addToFavourites(long restaurantId){
         restaurantRepo.findById(restaurantId)
                 .orElseThrow(() -> new NotFoundException(String.format("Restaurant with id:%s not found", restaurantId)));
-        return userClient.addToFavourites(restaurantId);
+        return userClient.addToFavourites(restaurantId).getBody().getMessage();
     }
 }

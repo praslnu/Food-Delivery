@@ -2,7 +2,7 @@ package com.foodDelivery.restaurantservice.external.decoder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.foodDelivery.restaurantservice.response.ApiExceptionResponse;
-import com.foodDelivery.restaurantservice.exception.CustException;
+import com.foodDelivery.restaurantservice.exception.CustomException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import org.apache.hc.core5.http.HttpStatus;
@@ -14,9 +14,9 @@ public class CustomErrorDecoder implements ErrorDecoder{
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             ApiExceptionResponse apiExceptionResponse = objectMapper.readValue(response.body().asInputStream(), ApiExceptionResponse.class);
-            return new CustException(apiExceptionResponse.getError(), apiExceptionResponse.getStatusCode());
+            return new CustomException(apiExceptionResponse.getError(), apiExceptionResponse.getStatusCode());
         } catch (IOException e) {
-            throw new CustException("Internal Server Error", HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            throw new CustomException("Internal Server Error", HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
     }
 }
